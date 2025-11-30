@@ -1,0 +1,434 @@
+</html>
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>우리 결혼합니다 | 모바일 청첩장</title>
+    <!-- Pretendard Font -->
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+    <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" rel="stylesheet" />
+    <!-- Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.3.0/fonts/remixicon.css" rel="stylesheet" />
+    <!-- Swiper (사진 슬라이드) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.css" />
+    <!-- Naver Map (커스텀 맵 | 클라이언트ID 교체 필요) -->
+    <!-- 아래 YOUR_CLIENT_ID 를 네이버 클라우드 플랫폼 지도 API Client ID 로 교체하세요. -->
+    <script src="https://oapi.map.naver.com/openapi/v3/maps.js?ncpClientId=YOUR_CLIENT_ID"></script>
+    <style>
+        :root {
+            --bg: #f7f7f9;
+            /* 모던 라이트 배경 */
+            --card: #ffffff;
+            --txt: #1f2937;
+            --sub: #6b7280;
+            --acc: #111827;
+            /* 포인트(딥그레이/블랙) */
+            --br: 20px;
+        }
+
+        * {
+            box-sizing: border-box
+        }
+
+        body {
+            margin: 0;
+            font-family: Pretendard, system-ui, -apple-system, Segoe UI, Roboto, 'Noto Sans KR', sans-serif;
+            color: var(--txt);
+            background: var(--bg);
+        }
+
+        .wrap {
+            max-width: 680px;
+            margin: 0 auto;
+            padding: 16px 16px 64px
+        }
+
+        .card {
+            background: var(--card);
+            border-radius: var(--br);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, .06);
+            padding: 24px;
+            margin: 16px 0
+        }
+
+        .hero {
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(135deg, #fff, #f1f2f5);
+            text-align: center;
+            padding: 56px 20px;
+            border-radius: var(--br)
+        }
+
+        .date-pill {
+            display: inline-block;
+            background: #111827;
+            color: #fff;
+            border-radius: 999px;
+            padding: 8px 14px;
+            font-weight: 600;
+            letter-spacing: .2px
+        }
+
+        h1 {
+            font-size: 36px;
+            margin: 16px 0 8px;
+            letter-spacing: .5px
+        }
+
+        h2 {
+            font-size: 20px;
+            margin: 0;
+            color: var(--sub);
+            font-weight: 500
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin: 0 0 14px 0
+        }
+
+        .muted {
+            color: var(--sub)
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            justify-content: center;
+            width: 100%;
+            padding: 14px;
+            border-radius: 12px;
+            border: 1px solid #e5e7eb;
+            background: #fff;
+            font-weight: 600
+        }
+
+        .btn:active {
+            transform: scale(.99)
+        }
+
+        .pill-tabs {
+            display: flex;
+            background: #f2f3f5;
+            border-radius: 12px;
+            padding: 6px;
+            gap: 6px
+        }
+
+        .pill-tabs button {
+            flex: 1;
+            padding: 10px;
+            border-radius: 10px;
+            border: 0;
+            background: transparent;
+            font-weight: 700;
+            color: #6b7280
+        }
+
+        .pill-tabs button.active {
+            background: #fff;
+            color: #111827;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, .06)
+        }
+
+        .account-box {
+            background: #fafafa;
+            border: 1px solid #eee;
+            border-radius: 12px;
+            padding: 12px;
+            margin-top: 10px;
+            text-align: left
+        }
+
+        .row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            margin: 8px 0
+        }
+
+        .copy {
+            border: 0;
+            background: #111827;
+            color: #fff;
+            padding: 8px 12px;
+            border-radius: 10px;
+            font-weight: 700
+        }
+
+        .copy:active {
+            transform: scale(.98)
+        }
+
+        .map-box {
+            height: 360px;
+            border-radius: 16px;
+            overflow: hidden
+        }
+
+        .fallback-iframe {
+            border: 0;
+            width: 100%;
+            height: 100%
+        }
+
+        .footer {
+            font-size: 12px;
+            color: #9ca3af;
+            text-align: center;
+            margin-top: 24px
+        }
+
+        .swiper {
+            border-radius: 16px;
+            overflow: hidden
+        }
+
+        .hero-img {
+            width: 100%;
+            border-radius: 16px;
+            margin-top: 16px;
+            object-fit: cover;
+            max-height: 420px
+        }
+
+        @media (max-width:420px) {
+            h1 {
+                font-size: 28px
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="wrap">
+        <!-- 표지(히어로) -->
+        <div class="hero card">
+            <span class="date-pill" id="date-pill">2026·03·08</span>
+            <h1 id="names">영훈 & 누리</h1>
+            <h2>명동 라루체</h2>
+            <img src="images/cover.jpg" alt="커플 사진" class="hero-img" onerror="this.style.display='none'" />
+        </div>
+
+        <!-- 인사말 -->
+        <section class="card" id="greeting">
+            <div class="section-title">인사말</div>
+            <p class="muted" style="line-height:1.85">
+                서로에게 기대어 평생을 함께 걸어가려 합니다.<br />
+                따뜻한 마음으로 축복해 주세요.
+            </p>
+        </section>
+
+        <!-- 예식 안내 -->
+        <section class="card">
+            <div class="section-title">예식 안내</div>
+            <div class="grid-2">
+                <div class="card" style="padding:16px">
+                    <div class="muted">일시</div>
+                    <div style="font-size:18px;font-weight:800" id="date-text">2026년 3월 8일 일요일 오후 3시 30분</div>
+                </div>
+                <div class="card" style="padding:16px">
+                    <div class="muted">장소</div>
+                    <div style="font-size:18px;font-weight:800">명동 라루체</div>
+                    <div class="muted" style="font-size:14px">서울 중구 퇴계로 18길 46 (남산동1가 13-6)</div>
+                </div>
+            </div>
+            <div class="grid-2" style="margin-top:12px">
+                <a class="btn" href="tel:010-7300-5571"><i class="ri-phone-line"></i>신랑에게 전화</a>
+                <a class="btn" href="tel:010-9777-4111"><i class="ri-phone-line"></i>신부에게 전화</a>
+            </div>
+        </section>
+
+        <!-- 사진 슬라이드 -->
+        <section class="card">
+            <div class="section-title">우리 사진</div>
+            <div class="swiper">
+                <div class="swiper-wrapper">
+                    <!-- images 폴더에 1.jpg ~ 5.jpg 넣어두면 자동으로 표시됩니다. -->
+                    <div class="swiper-slide"><img src="images/1.jpeg" alt="photo1" style="width:100%;display:block">
+                    </div>
+                    <div class="swiper-slide"><img src="images/2.jpg" alt="photo2" style="width:100%;display:block">
+                    </div>
+                    <div class="swiper-slide"><img src="images/3.jpg" alt="photo3" style="width:100%;display:block">
+                    </div>
+                    <div class="swiper-slide"><img src="images/4.jpg" alt="photo4" style="width:100%;display:block">
+                    </div>
+                    <div class="swiper-slide"><img src="images/5.jpg" alt="photo5" style="width:100%;display:block">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 오시는 길 (네이버 지도 커스텀) -->
+        <section class="card">
+            <div class="section-title">오시는 길 · 네이버 지도</div>
+            <div id="map" class="map-box"></div>
+            <div class="grid-2" style="margin-top:12px">
+                <a class="btn" id="naver-route" target="_blank"><i class="ri-map-pin-2-line"></i>네이버 길찾기</a>
+                <a class="btn" id="naver-place" target="_blank"><i class="ri-external-link-line"></i>네이버 지도 열기</a>
+            </div>
+            <p class="muted" style="margin-top:8px">* 만약 지도가 보이지 않으면 Client ID 설정 전이므로 아래 임베드로 자동 전환됩니다.</p>
+            <div id="map-fallback" class="map-box" style="display:none">
+                <iframe class="fallback-iframe"
+                    src="https://map.naver.com/v5/search/%EB%AA%85%EB%8F%99%20%EB%9D%BC%EB%A3%A8%EC%B2%B4"
+                    allowfullscreen></iframe>
+            </div>
+        </section>
+
+        <!-- 마음 전하실 곳 (신랑/신부 토글 UI) -->
+        <section class="card">
+            <div class="section-title">마음 전하실 곳</div>
+            <div class="pill-tabs" role="tablist">
+                <button id="tab-groom" class="active" role="tab" aria-selected="true">신랑측</button>
+                <button id="tab-bride" role="tab" aria-selected="false">신부측</button>
+            </div>
+            <!-- 신랑측 계좌 -->
+            <div id="acc-groom" class="account-box">
+                <div class="row">
+                    <div>
+                        <div style="font-weight:800">국민은행 123456-01-123456</div>
+                        <div class="muted" style="font-size:13px">예금주: 원영훈</div>
+                    </div>
+                    <button class="copy" data-copy="국민은행 123456-01-123456 예금주 원영훈"><i class="ri-file-copy-2-line"></i>
+                        복사</button>
+                </div>
+                <div class="row">
+                    <div>
+                        <div style="font-weight:800">토스뱅크 1234-56-789012</div>
+                        <div class="muted" style="font-size:13px">예금주: 원영훈</div>
+                    </div>
+                    <button class="copy" data-copy="토스뱅크 1234-56-789012 예금주 원영훈"><i class="ri-file-copy-2-line"></i>
+                        복사</button>
+                </div>
+            </div>
+            <!-- 신부측 계좌 -->
+            <div id="acc-bride" class="account-box" style="display:none">
+                <div class="row">
+                    <div>
+                        <div style="font-weight:800">신한은행 110-000-000000</div>
+                        <div class="muted" style="font-size:13px">예금주: 신부님</div>
+                    </div>
+                    <button class="copy" data-copy="신한은행 110-000-000000 예금주 신부님"><i class="ri-file-copy-2-line"></i>
+                        복사</button>
+                </div>
+            </div>
+            <p class="muted" style="margin-top:8px">계좌 정보는 복사 버튼으로만 노출되어 스팸 수집을 줄입니다.</p>
+        </section>
+
+        <div class="footer">© 2026. With love.</div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.js"></script>
+    <script>
+        // ======= 기본 정보(한 곳에서만 수정) =======
+        const WEDDING = {
+            year: 2026, // TODO: 연도 확인 후 수정
+            month: 3,
+            day: 8,
+            timeText: '오후 2시',
+            names: '영훈 & 누리',
+            // 라루체 좌표 (서울 중구 퇴계로 18길 46)
+            lat: 37.558992680643,
+            lng: 126.98463318791,
+            placeName: '명동 라루체',
+            placeAddress: '서울 중구 퇴계로 18길 46 (남산동1가 13-6)'
+        }
+
+        // 날짜 렌더링
+        function renderDate() {
+            const d = new Date(WEDDING.year, WEDDING.month - 1, WEDDING.day)
+            const week = ['일', '월', '화', '수', '목', '금', '토'][d.getDay()]
+            document.getElementById('date-pill').textContent = `${String(WEDDING.year).slice(2)}·${String(WEDDING.month).padStart(2, '0')}·${String(WEDDING.day).padStart(2, '0')}`
+            document.getElementById('date-text').textContent = `${WEDDING.year}년 ${WEDDING.month}월 ${WEDDING.day}일 ${week}요일 ${WEDDING.timeText}`
+            document.getElementById('names').textContent = WEDDING.names
+        }
+
+        // 사진 슬라이더
+        function initSwiper() {
+            new Swiper('.swiper', { loop: true, autoplay: { delay: 2500 }, spaceBetween: 8 })
+        }
+
+        // 네이버 지도(커스텀) + 폴백
+        function initMap() {
+            const mapEl = document.getElementById('map')
+            const fb = document.getElementById('map-fallback')
+            const hasNaver = typeof naver !== 'undefined' && naver.maps && naver.maps.Map
+            if (!hasNaver) {
+                mapEl.style.display = 'none';
+                fb.style.display = 'block';
+                return;
+            }
+            const center = new naver.maps.LatLng(WEDDING.lat, WEDDING.lng)
+            const map = new naver.maps.Map('map', {
+                center,
+                zoom: 16,
+                scaleControl: false,
+                logoControl: true,
+                mapDataControl: false,
+                tileTransition: true
+            })
+            // 다크핀 마커
+            const marker = new naver.maps.Marker({
+                position: center,
+                map,
+                icon: {
+                    content: '<div style="width:22px;height:22px;border-radius:50%;background:#111827;border:3px solid #fff;box-shadow:0 6px 18px rgba(0,0,0,.2)"></div>',
+                    anchor: new naver.maps.Point(11, 22)
+                }
+            })
+            // 정보창 최소 커스텀
+            const info = [
+                `<div style="padding:10px 12px;border-radius:10px;background:#fff;box-shadow:0 6px 20px rgba(0,0,0,.12);font-size:14px;font-weight:700">${WEDDING.placeName}<div style="font-size:12px;color:#6b7280;font-weight:500;margin-top:4px">${WEDDING.placeAddress}</div></div>`
+            ].join('')
+            const infowindow = new naver.maps.InfoWindow({ content: info, borderColor: '#fff', anchorSize: new naver.maps.Size(0, 0) })
+            infowindow.open(map, marker)
+
+            // 길찾기 & 장소 링크 설정
+            const navBtn = document.getElementById('naver-route')
+            const plcBtn = document.getElementById('naver-place')
+            // 네이버 길찾기(웹)
+            navBtn.href = `https://map.naver.com/v5/directions/-/-/${WEDDING.lat},${WEDDING.lng}`
+            // 네이버 장소 검색(웹)
+            plcBtn.href = `https://map.naver.com/v5/search/${encodeURIComponent(WEDDING.placeName)}`
+        }
+
+        // 계좌 토글 & 복사
+        function initAccounts() {
+            const tabG = document.getElementById('tab-groom')
+            const tabB = document.getElementById('tab-bride')
+            const g = document.getElementById('acc-groom')
+            const b = document.getElementById('acc-bride')
+            tabG.addEventListener('click', () => {
+                tabG.classList.add('active'); tabB.classList.remove('active'); g.style.display = 'block'; b.style.display = 'none'
+            })
+            tabB.addEventListener('click', () => {
+                tabB.classList.add('active'); tabG.classList.remove('active'); g.style.display = 'none'; b.style.display = 'block'
+            })
+            document.querySelectorAll('.copy').forEach(btn => btn.addEventListener('click', async (e) => {
+                const text = e.currentTarget.dataset.copy
+                try { await navigator.clipboard.writeText(text); alert('계좌 정보가 복사되었습니다.') } catch (err) { prompt('복사에 실패했습니다. 아래 내용을 직접 복사해 주세요.', text) }
+            }))
+        }
+
+        // 초기화
+        renderDate()
+        initSwiper()
+        initMap()
+        initAccounts()
+    </script>
+</body>
+
+</html>
