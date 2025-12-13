@@ -14,7 +14,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.css" />
     <!-- Naver Map (커스텀 맵 | 클라이언트ID 교체 필요) -->
     <!-- 아래 YOUR_CLIENT_ID 를 네이버 클라우드 플랫폼 지도 API Client ID 로 교체하세요. -->
-    <script type="text/javascript" src="https://oapi.map.naver.com/openapi/v3/maps.js?ncpClientId=xobgoisfw3">
+    <script type="text/javascript" src="https://oapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=xobgoisfw3"></script>
     </script>
     <style>
         :root {
@@ -312,7 +312,7 @@
                         <div style="font-weight:800">케이뱅크 100-224-926646</div>
                         <div class="muted" style="font-size:13px">예금주: 강누리</div>
                     </div>
-                    <button class="copy" data-copy="신한은행 110-000-000000 예금주 강누리"><i class="ri-file-copy-2-line"></i>
+                    <button class="copy" data-copy="신한은행 100-224-926646 예금주 강누리"><i class="ri-file-copy-2-line"></i>
                         복사</button>
                 </div>
             </div>
@@ -416,9 +416,15 @@
         }
 
         // 초기화
-        renderDate()
-        initSwiper()
-        initMap()
-        initAccounts()
+        document.addEventListener('DOMContentLoaded', () => {
+            renderDate();
+            initSwiper();
+            initMap();
+            initAccounts();
+        });
+        //renderDate()
+        //initSwiper()
+        //initMap()
+        //initAccounts()
     </script>
 </body>
