@@ -40,7 +40,13 @@
             margin: 0;
             font-family: Pretendard, system-ui, -apple-system, Segoe UI, Roboto, 'Noto Sans KR', sans-serif;
             color: var(--txt);
-            background: var(--bg);
+            /*background: var(--bg);*/
+            background:
+                radial-gradient(900px 520px at 18% 10%, rgba(255, 214, 130, .22), transparent 60%),
+                radial-gradient(900px 520px at 90% 18%, rgba(255, 132, 189, .16), transparent 60%),
+                radial-gradient(800px 520px at 65% 95%, rgba(120, 170, 255, .12), transparent 60%),
+                linear-gradient(180deg, #0b0f1a 0%, #0f172a 45%, #0b1020 100%);
+            color: #e5e7eb;
         }
 
         .wrap {
@@ -301,12 +307,12 @@
             <img src="images/picture1.png" alt="커플 사진" class="hero-img" onerror="this.style.display='none'" />
         </div> -->
         <div class="hero hero-photo card">
-            <h1 class="wedding-subtitle">WE ARE GETTING MARRIED</h1>
-            <br>
-            <h1 class="wedding-subtitle">영훈과 누리</h1>
-            <br>
-            <h2 class="wedding-subtitle">2026년 3월 8일 일요일 오후 3시 30분</h2>
-            <h2 class="wedding-subtitle">명동 라루체, 5층 그레이스홀</h2>
+            <div class="wedding-subtitle en">WE ARE GETTING MARRIED</div>
+
+            <div class="wedding-subtitle kr">영훈 · 누리</div>
+
+            <div class="wedding-subtitle meta">2026년 3월 8일 일요일 오후 3시 30분</div>
+            <div class="wedding-subtitle meta">명동 라루체, 5층 그레이스홀</div>
         </div>
 
         <!-- 인사말 -->
