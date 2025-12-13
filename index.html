@@ -15,7 +15,6 @@
     <!-- Naver Map (커스텀 맵 | 클라이언트ID 교체 필요) -->
     <!-- 아래 YOUR_CLIENT_ID 를 네이버 클라우드 플랫폼 지도 API Client ID 로 교체하세요. -->
     <script type="text/javascript" src="https://oapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=xobgoisfw3"></script>
-    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&display=swap"
@@ -292,6 +291,7 @@
             background: rgba(255, 255, 255, .04);
         }
 
+
         .row {
             display: flex;
             align-items: center;
@@ -300,11 +300,11 @@
             margin: 8px 0
         }
 
-        /*.map-box {
+        .map-box {
             height: 360px;
             border-radius: 16px;
             overflow: hidden
-        }*/
+        }
 
         .fallback-iframe {
             border: 0;
@@ -321,7 +321,8 @@
 
         .swiper {
             border-radius: 16px;
-            overflow: hidden
+            overflow: hidden;
+            height: auto;
         }
 
         .hero-img {
@@ -561,7 +562,7 @@
             <div class="swiper">
                 <div class="swiper-wrapper">
                     <!-- images 폴더에 1.jpg ~ 5.jpg 넣어두면 자동으로 표시됩니다. -->
-                    <div class="swiper-slide"><img src="images/picture1.png" alt="photo1"
+                    <div class="swiper-slide"><img src="images/picture1.jpeg" alt="photo1"
                             style="width:100%;display:block">
                     </div>
                     <div class="swiper-slide"><img src="images/picture2.jpeg" alt="photo2"
@@ -570,10 +571,10 @@
                     <div class="swiper-slide"><img src="images/picture3.png" alt="photo3"
                             style="width:100%;display:block">
                     </div>
-                    <div class="swiper-slide"><img src="images/picture1.png" alt="photo4"
+                    <div class="swiper-slide"><img src="images/picture4.jpeg" alt="photo4"
                             style="width:100%;display:block">
                     </div>
-                    <div class="swiper-slide"><img src="images/picture1.jpeg" alt="photo5"
+                    <div class="swiper-slide"><img src="images/picture4.jpeg" alt="photo5"
                             style="width:100%;display:block">
                     </div>
                 </div>
@@ -659,8 +660,18 @@
         }
 
         // 사진 슬라이더
-        function initSwiper() {
+        /*function initSwiper() {
             new Swiper('.swiper', { loop: true, autoplay: { delay: 2500 }, spaceBetween: 8 })
+        }*/
+        function initSwiper() {
+            new Swiper('.swiper', {
+                loop: true,
+                autoplay: { delay: 3500 },
+                spaceBetween: 8,
+                autoHeight: true,   // ✅ 슬라이드 높이에 맞게 컨테이너 높이 자동 변경
+                observer: true,
+                observeParents: true
+            });
         }
 
         // 네이버 지도(커스텀) + 폴백
