@@ -16,6 +16,10 @@
     <!-- 아래 YOUR_CLIENT_ID 를 네이버 클라우드 플랫폼 지도 API Client ID 로 교체하세요. -->
     <script type="text/javascript" src="https://oapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=xobgoisfw3"></script>
     </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
     <style>
         :root {
             --bg: #f7f7f9;
@@ -204,9 +208,84 @@
             max-height: 420px
         }
 
-        @media (max-width:420px) {
+        /*@media (max-width:420px) {
             h1 {
                 font-size: 28px
+            }
+        }*/
+        .wedding-subtitle {
+            font-family: "Playfair Display", serif;
+            font-size: 15px;
+            letter-spacing: .38em;
+            /* ⭐ 유럽 감성 핵심 */
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, .9);
+            margin-bottom: 14px;
+            text-shadow: 0 4px 14px rgba(0, 0, 0, .45);
+        }
+
+        /* 📸 사진 배경 히어로 */
+        .hero-photo {
+            position: relative;
+            min-height: 520px;
+            padding: 64px 20px;
+            color: #fff;
+            text-align: center;
+
+            /* 🔽 배경 사진 */
+            background-image: url("images/picture3.png");
+            /* 원하는 사진 */
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+
+        /* 어두운 그라데이션 오버레이 (가독성 핵심) */
+        .hero-photo::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background:
+                linear-gradient(180deg,
+                    rgba(0, 0, 0, .45) 0%,
+                    rgba(0, 0, 0, .25) 40%,
+                    rgba(0, 0, 0, .55) 100%);
+            z-index: 0;
+            border-radius: inherit;
+        }
+
+        /* 텍스트를 위로 */
+        .hero-photo>* {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* 날짜 pill 대비 강화 */
+        .hero-photo .date-pill {
+            background: rgba(0, 0, 0, .55);
+            backdrop-filter: blur(6px);
+            box-shadow: 0 8px 18px rgba(0, 0, 0, .25);
+        }
+
+        /* 이름 */
+        .hero-photo h1 {
+            color: #fff;
+            margin-top: 18px;
+            text-shadow: 0 6px 20px rgba(0, 0, 0, .45);
+        }
+
+        /* 장소 */
+        .hero-photo h2 {
+            color: rgba(255, 255, 255, .9);
+            margin-top: 6px;
+            text-shadow: 0 4px 12px rgba(0, 0, 0, .35);
+        }
+
+        /* 모바일 최적화 */
+        @media (max-width: 520px) {
+            .hero-photo {
+                min-height: 440px;
+                padding: 56px 18px;
             }
         }
     </style>
@@ -215,11 +294,19 @@
 <body>
     <div class="wrap">
         <!-- 표지(히어로) -->
-        <div class="hero card">
+        <!--<div class="hero card">
             <span class="date-pill" id="date-pill">2026·03·08</span>
             <h1 id="names">영훈 & 누리</h1>
             <h2>명동 라루체</h2>
             <img src="images/picture1.png" alt="커플 사진" class="hero-img" onerror="this.style.display='none'" />
+        </div> -->
+        <div class="hero hero-photo card">
+            <h1 class="wedding-subtitle">WE ARE GETTING MARRIED</h1>
+            <br>
+            <h1 class="wedding-subtitle">영훈과 누리</h1>
+            <br>
+            <h2 class="wedding-subtitle">2026년 3월 8일 일요일 오후 3시 30분</h2>
+            <h2 class="wedding-subtitle">명동 라루체, 5층 그레이스홀</h2>
         </div>
 
         <!-- 인사말 -->
@@ -237,11 +324,11 @@
             <div class="grid-2">
                 <div class="card" style="padding:16px">
                     <div class="muted">일시</div>
-                    <div style="font-size:18px;font-weight:800" id="date-text">2026년 3월 8일 일요일 오후 2시</div>
+                    <div style="font-size:14px;font-weight:800" id="date-text">2026년 3월 8일 일요일 오후 3시 30분</div>
                 </div>
                 <div class="card" style="padding:16px">
                     <div class="muted">장소</div>
-                    <div style="font-size:18px;font-weight:800">명동 라루체</div>
+                    <div style="font-size:14px;font-weight:800">명동 라루체</div>
                     <div class="muted" style="font-size:14px">서울 중구 퇴계로 18길 46 (남산동1가 13-6)</div>
                 </div>
             </div>
@@ -260,16 +347,16 @@
                     <div class="swiper-slide"><img src="images/picture1.png" alt="photo1"
                             style="width:100%;display:block">
                     </div>
-                    <div class="swiper-slide"><img src="images/picture1.png" alt="photo2"
+                    <div class="swiper-slide"><img src="images/picture2.jpeg" alt="photo2"
                             style="width:100%;display:block">
                     </div>
-                    <div class="swiper-slide"><img src="images/picture1.png" alt="photo3"
+                    <div class="swiper-slide"><img src="images/picture3.png" alt="photo3"
                             style="width:100%;display:block">
                     </div>
                     <div class="swiper-slide"><img src="images/picture1.png" alt="photo4"
                             style="width:100%;display:block">
                     </div>
-                    <div class="swiper-slide"><img src="images/picture1.png" alt="photo5"
+                    <div class="swiper-slide"><img src="images/picture1.jpeg" alt="photo5"
                             style="width:100%;display:block">
                     </div>
                 </div>
@@ -422,7 +509,7 @@
 
         // 초기화
         document.addEventListener('DOMContentLoaded', () => {
-            renderDate();
+            //renderDate();
             initSwiper();
             initMap();
             initAccounts();
