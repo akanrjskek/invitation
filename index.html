@@ -356,7 +356,7 @@
             text-align: center;
 
             /* 🔽 배경 사진 */
-            background-image: url("images/picture3.png");
+            background-image: url("images/picture3.jpeg");
             /* 원하는 사진 */
             background-size: cover;
             background-position: center;
@@ -816,9 +816,15 @@
         .gallery-modal {
             position: fixed;
             inset: 0;
+            background: rgba(0, 0, 0, .72);
+            z-index: 9999;
             display: none;
-            z-index: 9998;
-            background: rgba(0, 0, 0, .65);
+
+            /* ✅ 모달이 스크롤 담당 */
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            touch-action: pan-y;
+
             padding: 14px;
         }
 
@@ -827,16 +833,22 @@
         }
 
         .gm-panel {
-            height: calc(100vh - 28px);
+            max-width: 720px;
+            margin: 0 auto;
+            /* ✅ 위아래 마진을 padding으로 처리 */
+            padding: 18px;
+            background: rgba(15, 23, 42, .95);
             border-radius: 18px;
-            background: rgba(15, 23, 42, .92);
-            border: 1px solid rgba(255, 215, 150, .18);
-            box-shadow: 0 30px 80px rgba(0, 0, 0, .55);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
+            border: 1px solid rgba(255, 215, 150, .22);
+
+            /* ✅ 여기서 스크롤 제거 (모달이 스크롤함) */
+            max-height: none;
+            overflow: visible;
+
+            /* ✅ 위아래 여백 */
+            margin-top: 40px;
+            margin-bottom: 40px;
+
         }
 
         .gm-head {
@@ -867,11 +879,9 @@
         }
 
         .gm-grid {
-            padding: 14px;
-            overflow: auto;
             display: grid;
-            grid-template-columns: repeat(3, minmax(0, 1fr));
-            gap: 10px;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
         }
 
         @media (max-width:520px) {
@@ -882,6 +892,17 @@
 
         .gm-grid .g-item img {
             height: 160px;
+        }
+
+        /* ===== 로딩 스피너 ===== */
+        .gallery-loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 60px 0;
+            font-size: 14px;
+            color: rgba(255, 255, 255, .75);
+            gap: 10px;
         }
     </style>
 </head>
@@ -1035,6 +1056,9 @@
                     <div class="gm-head">
                         <div class="gm-title">갤러리</div>
                         <button class="gm-close" type="button" aria-label="닫기"><i class="ri-close-line"></i></button>
+                    </div>
+                    <div class="gallery-loading" id="gallery-loading" style="display:none;">
+                        <i class="ri-loader-4-line ri-spin"></i> 사진 불러오는 중...
                     </div>
                     <div class="gm-grid" id="gm-grid"></div>
                 </div>
@@ -1209,166 +1233,123 @@
                 });
             }
             function initGalleryAuto() {
-                // ====== ✅ 여기만 너 상황에 맞게 수정 ======
                 const GALLERY = {
-                    dir: 'images/',         // 폴더
-                    prefix: 'picture',      // 파일명 prefix
-                    start: 1,               // 시작 번호
-                    count: 12,              // 사진 개수 (ex: 12장이면 12)
-                    ext: ['png', 'jpeg', 'jpg', 'webp'] // 확장자 후보(자동 탐색)
+                    dir: 'images/',
+                    prefix: 'picture',
+                    start: 1,
+                    count: 5,
+                    ext: ['jpeg', 'png', 'jpg', 'webp']
                 };
-                // ==========================================
 
                 const grid = document.getElementById('gallery-grid');
                 const modal = document.getElementById('gallery-modal');
                 const modalGrid = document.getElementById('gm-grid');
-                const openModalBtn = document.getElementById('open-gallery');
-                const modalCloseBtn = modal?.querySelector('.gm-close');
+                const loadingEl = document.getElementById('gallery-loading');
+                const openBtn = document.getElementById('open-gallery');
+                const closeBtn = modal?.querySelector('.gm-close');
 
-                const lb = document.getElementById('lightbox');
-                const lbImg = document.getElementById('lb-img');
-                const lbCounter = document.getElementById('lb-counter');
-                const btnClose = lb?.querySelector('.lb-close');
-                const btnPrev = lb?.querySelector('.lb-prev');
-                const btnNext = lb?.querySelector('.lb-next');
+                if (!grid || !modal) return;
 
-                if (!grid || !lb || !lbImg) return;
+                let items = [];
+                let ready = false;
 
-                let items = [];     // {src, alt}
-                let index = 0;
+                let __scrollY = 0;
 
-                const lockScroll = () => (document.body.style.overflow = 'hidden');
-                const unlockScroll = () => (document.body.style.overflow = '');
+                const lock = () => {
+                    __scrollY = window.scrollY || 0;
+                    document.body.style.position = 'fixed';
+                    document.body.style.top = `-${__scrollY}px`;
+                    document.body.style.left = '0';
+                    document.body.style.right = '0';
+                    document.body.style.width = '100%';
+                };
 
-                // 확장자 자동 탐색: 첫 로딩에서 404가 나면 onerror로 다음 확장자 시도
-                function resolveSrc(n, extIdx = 0) {
-                    return `${GALLERY.dir}${GALLERY.prefix}${n}.${GALLERY.ext[extIdx]}`;
-                }
+                const unlock = () => {
+                    document.body.style.position = '';
+                    document.body.style.top = '';
+                    document.body.style.left = '';
+                    document.body.style.right = '';
+                    document.body.style.width = '';
+                    window.scrollTo(0, __scrollY);
+                };
 
-                function makeThumb(src, alt, onClick) {
-                    const btn = document.createElement('button');
-                    btn.type = 'button';
-                    btn.className = 'g-item';
-                    btn.dataset.src = src;
+                /* 썸네일 */
+                const makeThumb = (src, i) => {
+                    const b = document.createElement('button');
+                    b.className = 'g-item';
+                    b.innerHTML = `<img src="${src}" loading="lazy">`;
+                    b.onclick = () => openLightbox(i);
+                    return b;
+                };
 
-                    const img = document.createElement('img');
-                    img.loading = 'lazy';
-                    img.alt = alt;
-                    img.src = src;
+                /* ===== 라이트박스는 기존 그대로 사용 ===== */
 
-                    btn.appendChild(img);
-                    btn.addEventListener('click', onClick);
-                    return btn;
-                }
-
-                // 갤러리 DOM 생성
-                function buildGallery() {
-                    grid.innerHTML = '';
-                    items.forEach((it, i) => {
-                        grid.appendChild(makeThumb(it.src, it.alt, () => openLightbox(i)));
-                    });
-                }
-
-                // 라이트박스
-                function setCounter() {
-                    if (lbCounter) lbCounter.textContent = `${index + 1} / ${items.length}`;
-                }
-                function show(i) {
-                    index = (i + items.length) % items.length;
-                    lbImg.src = items[index].src;
-                    setCounter();
-                }
-                function openLightbox(i) {
-                    show(i);
-                    lb.classList.add('open');
-                    lb.setAttribute('aria-hidden', 'false');
-                    lockScroll();
-                }
-                function closeLightbox() {
-                    lb.classList.remove('open');
-                    lb.setAttribute('aria-hidden', 'true');
-                    lbImg.src = '';
-                    unlockScroll();
-                }
-                function prev() { show(index - 1); }
-                function next() { show(index + 1); }
-
-                btnClose?.addEventListener('click', closeLightbox);
-                btnPrev?.addEventListener('click', prev);
-                btnNext?.addEventListener('click', next);
-                lb.addEventListener('click', (e) => { if (e.target === lb) closeLightbox(); });
-
-                document.addEventListener('keydown', (e) => {
-                    if (!lb.classList.contains('open')) return;
-                    if (e.key === 'Escape') closeLightbox();
-                    if (e.key === 'ArrowLeft') prev();
-                    if (e.key === 'ArrowRight') next();
-                });
-
-                // 스와이프
-                let sx = 0, sy = 0, moved = false;
-                const threshold = 40;
-                lbImg.addEventListener('touchstart', (e) => {
-                    const t = e.touches[0];
-                    sx = t.clientX; sy = t.clientY; moved = false;
-                }, { passive: true });
-                lbImg.addEventListener('touchmove', () => { moved = true; }, { passive: true });
-                lbImg.addEventListener('touchend', (e) => {
-                    if (!moved) return;
-                    const t = e.changedTouches[0];
-                    const dx = t.clientX - sx;
-                    const dy = t.clientY - sy;
-                    if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > threshold) dx > 0 ? prev() : next();
-                }, { passive: true });
-
-                // 모두 보기 모달
+                /* ===== 모두 보기 ===== */
                 function openModal() {
-                    modalGrid.innerHTML = '';
-                    items.forEach((it, i) => {
-                        modalGrid.appendChild(makeThumb(it.src, it.alt, () => { closeModal(); openLightbox(i); }));
-                    });
                     modal.classList.add('open');
                     modal.setAttribute('aria-hidden', 'false');
-                    lockScroll();
+                    lock();
+
+                    modalGrid.innerHTML = '';
+                    loadingEl.style.display = ready ? 'none' : 'flex';
+
+                    if (ready) {
+                        items.forEach((it, i) => {
+                            modalGrid.appendChild(makeThumb(it.src, i));
+                        });
+                    }
                 }
+
                 function closeModal() {
                     modal.classList.remove('open');
                     modal.setAttribute('aria-hidden', 'true');
                     modalGrid.innerHTML = '';
-                    unlockScroll();
+                    unlock();
                 }
-                openModalBtn?.addEventListener('click', openModal);
-                modalCloseBtn?.addEventListener('click', closeModal);
-                modal?.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
 
-                // ====== 사진 목록 만들기 (자동) ======
-                // 각 번호에 대해 ext 후보를 순서대로 시도해서 "존재하는 것"만 items에 넣기
-                function probeOne(n) {
-                    return new Promise((resolve) => {
-                        let extIdx = 0;
+                openBtn?.addEventListener('click', openModal);
+                closeBtn?.addEventListener('click', closeModal);
+                modal.addEventListener('click', e => {
+                    if (e.target === modal) closeModal();
+                });
+
+                /* ===== 자동 이미지 탐색 ===== */
+                function probe(n) {
+                    return new Promise(resolve => {
+                        let i = 0;
                         const img = new Image();
-
-                        const tryNext = () => {
-                            if (extIdx >= GALLERY.ext.length) return resolve(null);
-                            img.src = resolveSrc(n, extIdx);
+                        const next = () => {
+                            if (i >= GALLERY.ext.length) return resolve(null);
+                            img.src = `${GALLERY.dir}${GALLERY.prefix}${n}.${GALLERY.ext[i++]}`;
                         };
-
                         img.onload = () => resolve(img.src);
-                        img.onerror = () => { extIdx += 1; tryNext(); };
-
-                        tryNext();
+                        img.onerror = next;
+                        next();
                     });
                 }
 
                 (async () => {
-                    const results = [];
+                    const result = [];
                     for (let n = GALLERY.start; n < GALLERY.start + GALLERY.count; n++) {
-                        const src = await probeOne(n);
-                        if (src) results.push({ src, alt: `photo${n}` });
+                        const src = await probe(n);
+                        if (src) result.push({ src });
                     }
-                    items = results;
-                    buildGallery();
-                    setCounter();
+                    items = result;
+                    ready = true;
+
+                    // 메인 갤러리
+                    grid.innerHTML = '';
+                    items.forEach((it, i) => {
+                        grid.appendChild(makeThumb(it.src, i));
+                    });
+
+                    // 모달이 이미 열려 있으면 즉시 갱신
+                    if (modal.classList.contains('open')) {
+                        loadingEl.style.display = 'none';
+                        items.forEach((it, i) => {
+                            modalGrid.appendChild(makeThumb(it.src, i));
+                        });
+                    }
                 })();
             }
 
