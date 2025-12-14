@@ -813,50 +813,70 @@
         }
 
         /* ===== “모두 보기” 모달 ===== */
+        /* ===== 전체 화면 갤러리 모달 ===== */
         .gallery-modal {
             position: fixed;
             inset: 0;
-            background: rgba(0, 0, 0, .72);
             z-index: 9999;
             display: none;
+            background: rgba(0, 0, 0, .78);
 
-            /* ✅ 모달이 스크롤 담당 */
-            overflow-y: auto;
-            -webkit-overflow-scrolling: touch;
-            touch-action: pan-y;
-
-            padding: 14px;
+            /* ✅ 전체 화면에서 내부 스크롤 */
+            overflow: hidden;
         }
 
         .gallery-modal.open {
             display: block;
         }
 
+        /* ✅ 패널이 화면을 100% 차지 */
         .gm-panel {
-            max-width: 720px;
-            margin: 0 auto;
-            /* ✅ 위아래 마진을 padding으로 처리 */
-            padding: 18px;
-            background: rgba(15, 23, 42, .95);
-            border-radius: 18px;
-            border: 1px solid rgba(255, 215, 150, .22);
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
 
-            /* ✅ 여기서 스크롤 제거 (모달이 스크롤함) */
-            max-height: none;
-            overflow: visible;
+            background: rgba(15, 23, 42, .96);
+            border: 1px solid rgba(255, 215, 150, .18);
+            border-radius: 0;
+            /* ✅ 전체화면이면 라운드 제거(원하면 18px도 가능) */
 
-            /* ✅ 위아래 여백 */
-            margin-top: 40px;
-            margin-bottom: 40px;
-
+            display: flex;
+            flex-direction: column;
         }
 
+        /* 상단 헤더 고정 */
         .gm-head {
-            padding: 14px 14px;
+            flex: 0 0 auto;
             display: flex;
             align-items: center;
             justify-content: space-between;
+            padding: 14px 14px;
+
             border-bottom: 1px solid rgba(255, 215, 150, .15);
+            background: rgba(15, 23, 42, .92);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+
+        /* 본문(그리드)만 스크롤 */
+        .gm-grid {
+            flex: 1 1 auto;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            padding: 14px;
+
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 10px;
+        }
+
+        @media (max-width:520px) {
+            .gm-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
         }
 
         .gm-title {
@@ -876,12 +896,6 @@
             display: flex;
             align-items: center;
             justify-content: center;
-        }
-
-        .gm-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 12px;
         }
 
         @media (max-width:520px) {
@@ -1254,7 +1268,6 @@
                 let ready = false;
 
                 let __scrollY = 0;
-
                 const lock = () => {
                     __scrollY = window.scrollY || 0;
                     document.body.style.position = 'fixed';
@@ -1263,7 +1276,6 @@
                     document.body.style.right = '0';
                     document.body.style.width = '100%';
                 };
-
                 const unlock = () => {
                     document.body.style.position = '';
                     document.body.style.top = '';
