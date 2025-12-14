@@ -426,9 +426,11 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            pointer-events: auto;
+            /* ✅ 클릭이 stage/img로 정상 인식 */
             z-index: 10000;
-            pointer-events: none;
         }
+
 
         .lb-img {
             max-width: 100%;
@@ -814,7 +816,7 @@
             btnClose.addEventListener('click', (e) => { e.stopPropagation(); close(); });
             btnPrev.addEventListener('click', (e) => { e.stopPropagation(); show(index - 1); });
             btnNext.addEventListener('click', (e) => { e.stopPropagation(); show(index + 1); });
-            lb.addEventListener('click', e => { if (e.target === lb) close(); });
+            /*lb.addEventListener('click', e => { if (e.target === lb) close(); });*/
 
             let sx = 0;
             lbImg.addEventListener('touchstart', e => sx = e.touches[0].clientX, { passive: true });
