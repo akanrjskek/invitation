@@ -205,10 +205,10 @@
             padding: 14px;
             border-radius: 12px;
             text-decoration: none;
-            border: 1px solid rgba(255, 215, 150, .28);
-            background: rgba(255, 255, 255, .06);
-            color: rgba(255, 255, 255, .92);
-            box-shadow: 0 12px 26px rgba(0, 0, 0, .25);
+            border: 1px solid rgba(255, 255, 255, .45);
+            background: rgba(255, 255, 255, .12);
+            color: #ffffff;
+            box-shadow: 0 10px 26px rgba(0, 0, 0, .25);
         }
 
         .btn:active {
@@ -216,10 +216,10 @@
         }
 
         .btn.btn-gold {
-            border: 0;
+            background: rgba(255, 255, 255, .85);
             color: #111827;
-            background: linear-gradient(135deg, #ffd98a 0%, #ffb6d5 45%, #c7b6ff 100%);
-            box-shadow: 0 18px 38px rgba(255, 214, 130, .12), 0 18px 48px rgba(0, 0, 0, .35);
+            border: 0;
+            /*box-shadow: 0 18px 40px rgba(0, 0, 0, .35);*/
         }
 
         /* 축하 연락처 */
@@ -273,8 +273,9 @@
             padding: 5px 9px;
             border-radius: 999px;
             text-decoration: none;
+            background: rgba(255, 255, 255, .85);
             color: #111827;
-            background: linear-gradient(135deg, #ffd98a, #ffb6d5, #c7b6ff);
+            border: 1px solid rgba(255, 255, 255, .6);
             box-shadow: 0 6px 14px rgba(0, 0, 0, .25);
         }
 
@@ -323,12 +324,12 @@
         }
 
         .copy {
-            border: 0;
             padding: 10px 12px;
             border-radius: 12px;
             cursor: pointer;
-            background: linear-gradient(135deg, #ffd98a, #ffb6d5, #c7b6ff);
+            background: rgba(255, 255, 255, .9);
             color: #111827;
+            border: 1px solid rgba(255, 255, 255, .65);
             box-shadow: 0 14px 28px rgba(0, 0, 0, .25);
             font-weight: 700;
             white-space: nowrap;
@@ -426,11 +427,9 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            pointer-events: auto;
-            /* ✅ 클릭이 stage/img로 정상 인식 */
             z-index: 10000;
+            pointer-events: none;
         }
-
 
         .lb-img {
             max-width: 100%;
@@ -500,6 +499,59 @@
             transform: translateY(-50%);
         }
 
+        /* 예식 안내 그리드 */
+        .ceremony-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            /* ⭐ 한 줄씩 */
+            gap: 14px;
+        }
+
+        /* 예식 안내 안쪽 카드 */
+        .ceremony-item {
+            margin: 0;
+            /* ⭐ 핵심 */
+            padding: 14px 16px;
+            /* 컴팩트 */
+            border-radius: 14px;
+        }
+
+        .transport-box {
+            margin-top: 24px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+        }
+
+        .transport-item {
+            padding: 16px;
+            border-radius: 16px;
+            background: rgba(255, 255, 255, .06);
+            border: 1px solid rgba(255, 215, 150, .18);
+            box-shadow: 0 12px 28px rgba(0, 0, 0, .25);
+        }
+
+        .transport-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            font-weight: 700;
+            letter-spacing: .08em;
+            color: rgba(255, 215, 150, .95);
+            margin-bottom: 8px;
+        }
+
+        .transport-title i {
+            font-size: 18px;
+        }
+
+        .transport-desc {
+            font-size: 14px;
+            line-height: 1.7;
+            color: rgba(229, 231, 235, .85);
+        }
+
         @media (max-width:520px) {
             .lb-prev {
                 left: 10px;
@@ -507,6 +559,10 @@
 
             .lb-next {
                 right: 10px;
+            }
+
+            .transport-box {
+                grid-template-columns: 1fr;
             }
         }
     </style>
@@ -527,23 +583,25 @@
         <section class="card" id="greeting">
             <div class="section-title">결혼합니다</div>
             <p class="muted" style="line-height:1.85; text-align:center;">
-                서로에게 기대어 평생을 함께 걸어가려 합니다.<br />
-                따뜻한 마음으로 축복해 주세요.
+                열두 계절 속 쌓여온 작은 마음들이 하나의 사랑이 되어<br />
+                그대로의 우리로, 서로를 채우려 합니다.<br />
+                그 시작에 따뜻한 축볼을 더해 주세요.
             </p>
         </section>
 
         <!-- 예식 안내 -->
         <section class="card">
             <div class="section-title">예식 안내</div>
-            <div class="grid-2">
-                <div class="card">
+            <div class="ceremony-grid">
+                <div class="card ceremony-item">
                     <div class="muted">일시</div>
                     <div style="font-size:14px;font-weight:800">2026년 3월 8일 일요일 오후 3시 30분</div>
                 </div>
-                <div class="card">
+                <div class="card ceremony-item">
                     <div class="muted">장소</div>
-                    <div style="font-size:14px;font-weight:800">명동 라루체</div>
-                    <div class="muted" style="font-size:14px">서울 중구 퇴계로 18길 46 (남산동1가 13-6)</div>
+                    <div style="font-size:14px;font-weight:800">명동 라루체 5F 그레이스홀</div>
+                    <div style="font-size:14px;font-weight:800">서울 중구 퇴계로 18길 46 (남산동1가 13-6)</div>
+                    <div style="font-size:14px;font-weight:800">TEL. 02-766-8200</div>
                 </div>
             </div>
         </section>
@@ -639,7 +697,7 @@
 
         <!-- 오시는 길 -->
         <section class="card">
-            <div class="section-title">오시는 길 · 네이버 지도</div>
+            <div class="section-title">오시는 길</div>
             <div id="map" class="map-box"></div>
             <div class="grid-2" style="margin-top:12px">
                 <a class="btn btn-gold" id="naver-route" target="_blank"><i class="ri-map-pin-2-line"></i>네이버 길찾기</a>
@@ -650,6 +708,28 @@
                 <iframe class="fallback-iframe"
                     src="https://map.naver.com/v5/search/%EB%AA%85%EB%8F%99%20%EB%9D%BC%EB%A3%A8%EC%B2%B4"
                     allowfullscreen></iframe>
+            </div>
+            <div class="transport-box">
+                <div class="transport-item">
+                    <div class="transport-title">
+                        <i class="ri-car-line"></i> 자가용 이용 시
+                    </div>
+                    <p class="transport-desc">
+                        네비게이션에 “명동 라루체” 또는 주소를 검색해 주세요.<br>
+                        주차장 2시간 무료 이용이 가능하며, 혼잡할 수 있으니 여유 있게 도착해 주세요.
+                    </p>
+                </div>
+
+                <div class="transport-item">
+                    <div class="transport-title">
+                        <i class="ri-bus-line"></i> 대중교통 이용 시
+                    </div>
+                    <p class="transport-desc">
+                        지하철: 4호선 명동역 3번 출구<br>
+                        버스: 퇴계로2가.명동역 - 104, 105, 421, 463, 507, 604, N16, 7011<br>
+                        명동입구 - 104, 421, 463, 507, 604, N16, 7011, 05
+                    </p>
+                </div>
             </div>
         </section>
 
@@ -767,7 +847,7 @@
                 dir: 'images/',
                 prefix: 'picture',
                 start: 1,
-                count: 5,
+                count: 7,
                 ext: ['jpeg', 'jpg', 'png', 'webp']
             };
 
@@ -816,7 +896,7 @@
             btnClose.addEventListener('click', (e) => { e.stopPropagation(); close(); });
             btnPrev.addEventListener('click', (e) => { e.stopPropagation(); show(index - 1); });
             btnNext.addEventListener('click', (e) => { e.stopPropagation(); show(index + 1); });
-            /*lb.addEventListener('click', e => { if (e.target === lb) close(); });*/
+            lb.addEventListener('click', e => { if (e.target === lb) close(); });
 
             let sx = 0;
             lbImg.addEventListener('touchstart', e => sx = e.touches[0].clientX, { passive: true });
