@@ -569,6 +569,21 @@
             -webkit-font-smoothing: antialiased;
         }
 
+        /* ✅ 갤러리/라이트박스에서만 더블탭 줌 방지 (대부분 브라우저) */
+        #gallery,
+        #lightbox {
+            touch-action: manipulation;
+        }
+
+        /* ✅ 사진 자체 확대/선택/롱프레스 메뉴 최소화 */
+        #gallery img,
+        #lightbox img {
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-touch-callout: none;
+            -webkit-user-drag: none;
+        }
+
         @media (max-width:520px) {
             .lb-prev {
                 left: 10px;
