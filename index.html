@@ -3,7 +3,8 @@
 
 <head>
     <meta charset="UTF-8" />
-    <meta id="viewport" name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
     <title>우리 결혼합니다 | 모바일 청첩장</title>
     <meta name="format-detection" content="telephone=no">
     <!-- Fonts & Icons -->
@@ -418,11 +419,8 @@
             z-index: 9999;
         }
 
-        /* 라이트박스가 열려있는 동안: pinch/더블탭 확대 방지 힌트 */
         .lightbox.open {
-            touch-action: none;
-            /* 핵심 */
-            overscroll-behavior: contain;
+            display: flex;
         }
 
         .lb-stage {
@@ -572,19 +570,12 @@
             -webkit-font-smoothing: antialiased;
         }
 
-        /* ✅ 갤러리/라이트박스에서만 더블탭 줌 방지 (대부분 브라우저) */
-        #gallery,
-        #lightbox {
-            touch-action: manipulation;
-        }
-
-        /* ✅ 사진 자체 확대/선택/롱프레스 메뉴 최소화 */
-        #gallery img,
-        #lightbox img {
-            user-select: none;
-            -webkit-user-select: none;
-            -webkit-touch-callout: none;
-            -webkit-user-drag: none;
+        /* 라이트박스 열렸을 때만 문서 스크롤/바운스 잠금 */
+        html.lb-noscroll,
+        body.lb-noscroll {
+            height: 100%;
+            overflow: hidden;
+            overscroll-behavior: none;
         }
 
         @media (max-width:520px) {
@@ -927,65 +918,63 @@
                 lbImg.src = items[index];
                 lbCounter.textContent = `${index + 1} / ${items.length}`;
             };
-            // ✅ iOS Safari 브라우저 줌(핀치) 자체를 라이트박스 동안만 차단
-            const viewportMeta = document.querySelector('meta[name="viewport"]');
-            const viewportOriginal = viewportMeta ? viewportMeta.getAttribute('content') : null;
+            let zoomBlockOn = false;
 
-            const disableViewportZoom = () => {
-                if (!viewportMeta) return;
-                viewportMeta.setAttribute(
-                    'content',
-                    'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no'
-                );
-            };
+            const zoomBlockHandler = (e) => {
+                if (!zoomBlockOn) return;
 
-            const restoreViewportZoom = () => {
-                if (!viewportMeta || !viewportOriginal) return;
-                viewportMeta.setAttribute('content', viewportOriginal);
-            };
+                // 1) 핀치(멀티터치) 차단
+                if (e.touches && e.touches.length > 1) {
+                    e.preventDefault();
+                    return;
+                }
 
-            // ✅ 라이트박스 열릴 때만 "문서 전체" 핀치 줌 차단
-            const preventZoom = (e) => {
-                // 두 손가락(핀치)일 때만 막기
-                if (e.touches && e.touches.length > 1) e.preventDefault();
+                // 2) iOS 구형 gesture 이벤트 차단
+                if (e.type.startsWith('gesture')) {
+                    e.preventDefault();
+                    return;
+                }
             };
-            const preventGesture = (e) => e.preventDefault(); // iOS gesturestart 대응
 
             const enableZoomBlock = () => {
-                document.addEventListener('touchmove', preventZoom, { passive: false });
-                document.addEventListener('gesturestart', preventGesture, { passive: false });
-                document.addEventListener('gesturechange', preventGesture, { passive: false });
-                document.addEventListener('gestureend', preventGesture, { passive: false });
+                zoomBlockOn = true;
+
+                // 캡처 단계 + passive:false (핵심)
+                document.addEventListener('touchstart', zoomBlockHandler, { passive: false, capture: true });
+                document.addEventListener('touchmove', zoomBlockHandler, { passive: false, capture: true });
+                document.addEventListener('gesturestart', zoomBlockHandler, { passive: false, capture: true });
+                document.addEventListener('gesturechange', zoomBlockHandler, { passive: false, capture: true });
+                document.addEventListener('gestureend', zoomBlockHandler, { passive: false, capture: true });
+
+                // 라이트박스 켜진 동안 스크롤/바운스도 같이 잠금(확대 트리거 줄임)
+                document.documentElement.classList.add('lb-noscroll');
             };
 
             const disableZoomBlock = () => {
-                document.removeEventListener('touchmove', preventZoom);
-                document.removeEventListener('gesturestart', preventGesture);
-                document.removeEventListener('gesturechange', preventGesture);
-                document.removeEventListener('gestureend', preventGesture);
+                zoomBlockOn = false;
+
+                document.removeEventListener('touchstart', zoomBlockHandler, true);
+                document.removeEventListener('touchmove', zoomBlockHandler, true);
+                document.removeEventListener('gesturestart', zoomBlockHandler, true);
+                document.removeEventListener('gesturechange', zoomBlockHandler, true);
+                document.removeEventListener('gestureend', zoomBlockHandler, true);
+
+                document.documentElement.classList.remove('lb-noscroll');
             };
 
             const open = (i) => {
                 show(i);
                 lb.classList.add('open');
                 lock();
-                disableViewportZoom(); // ✅ 추가
+                enableZoomBlock();   // ✅ 추가
             };
 
             const close = () => {
                 lb.classList.remove('open');
                 lbImg.src = '';
                 unlock();
-                restoreViewportZoom(); // ✅ 추가
+                disableZoomBlock();  // ✅ 추가
             };
-
-            let lastTap = 0;
-            lb.addEventListener('touchend', (e) => {
-                if (!lb.classList.contains('open')) return;
-                const now = Date.now();
-                if (now - lastTap < 300) e.preventDefault(); // 더블탭 확대 방지
-                lastTap = now;
-            }, { passive: false });
 
             btnClose.addEventListener('click', (e) => { e.stopPropagation(); close(); });
             btnPrev.addEventListener('click', (e) => { e.stopPropagation(); show(index - 1); });
