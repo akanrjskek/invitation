@@ -418,8 +418,11 @@
             z-index: 9999;
         }
 
+        /* 라이트박스가 열려있는 동안: pinch/더블탭 확대 방지 힌트 */
         .lightbox.open {
-            display: flex;
+            touch-action: none;
+            /* 핵심 */
+            overscroll-behavior: contain;
         }
 
         .lb-stage {
@@ -925,16 +928,40 @@
                 lbCounter.textContent = `${index + 1} / ${items.length}`;
             };
 
+
+            // ✅ 라이트박스 열릴 때만 "문서 전체" 핀치 줌 차단
+            const preventZoom = (e) => {
+                // 두 손가락(핀치)일 때만 막기
+                if (e.touches && e.touches.length > 1) e.preventDefault();
+            };
+            const preventGesture = (e) => e.preventDefault(); // iOS gesturestart 대응
+
+            const enableZoomBlock = () => {
+                document.addEventListener('touchmove', preventZoom, { passive: false });
+                document.addEventListener('gesturestart', preventGesture, { passive: false });
+                document.addEventListener('gesturechange', preventGesture, { passive: false });
+                document.addEventListener('gestureend', preventGesture, { passive: false });
+            };
+
+            const disableZoomBlock = () => {
+                document.removeEventListener('touchmove', preventZoom);
+                document.removeEventListener('gesturestart', preventGesture);
+                document.removeEventListener('gesturechange', preventGesture);
+                document.removeEventListener('gestureend', preventGesture);
+            };
+
             const open = (i) => {
                 show(i);
                 lb.classList.add('open');
                 lock();
+                enableZoomBlock(); // ✅ 추가
             };
 
             const close = () => {
                 lb.classList.remove('open');
                 lbImg.src = '';
                 unlock();
+                disableZoomBlock(); // ✅ 추가
             };
 
             btnClose.addEventListener('click', (e) => { e.stopPropagation(); close(); });
