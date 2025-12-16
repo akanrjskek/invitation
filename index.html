@@ -901,7 +901,7 @@
             let index = 0;
 
             let scrollY = 0;
-            const lock = () => {
+            /*const lock = () => {
                 scrollY = window.scrollY;
                 document.body.style.position = 'fixed';
                 document.body.style.top = `-${scrollY}px`;
@@ -911,89 +911,61 @@
                 document.body.style.position = '';
                 document.body.style.top = '';
                 window.scrollTo(0, scrollY);
-            };
+            };*/
 
             const show = (i) => {
                 index = (i + items.length) % items.length;
                 lbImg.src = items[index];
                 lbCounter.textContent = `${index + 1} / ${items.length}`;
             };
-            let zoomBlockOn = false;
-
-            const zoomBlockHandler = (e) => {
-                if (!zoomBlockOn) return;
-
-                // 1) 핀치(멀티터치) 차단
-                if (e.touches && e.touches.length > 1) {
-                    e.preventDefault();
-                    return;
-                }
-
-                // 2) iOS 구형 gesture 이벤트 차단
-                if (e.type.startsWith('gesture')) {
-                    e.preventDefault();
-                    return;
-                }
-            };
-
-            const enableZoomBlock = () => {
-                zoomBlockOn = true;
-
-                // 캡처 단계 + passive:false (핵심)
-                document.addEventListener('touchstart', zoomBlockHandler, { passive: false, capture: true });
-                document.addEventListener('touchmove', zoomBlockHandler, { passive: false, capture: true });
-                document.addEventListener('gesturestart', zoomBlockHandler, { passive: false, capture: true });
-                document.addEventListener('gesturechange', zoomBlockHandler, { passive: false, capture: true });
-                document.addEventListener('gestureend', zoomBlockHandler, { passive: false, capture: true });
-
-                // 라이트박스 켜진 동안 스크롤/바운스도 같이 잠금(확대 트리거 줄임)
-                document.documentElement.classList.add('lb-noscroll');
-            };
-
-            const disableZoomBlock = () => {
-                zoomBlockOn = false;
-
-                document.removeEventListener('touchstart', zoomBlockHandler, true);
-                document.removeEventListener('touchmove', zoomBlockHandler, true);
-                document.removeEventListener('gesturestart', zoomBlockHandler, true);
-                document.removeEventListener('gesturechange', zoomBlockHandler, true);
-                document.removeEventListener('gestureend', zoomBlockHandler, true);
-
-                document.documentElement.classList.remove('lb-noscroll');
-            };
 
             const open = (i) => {
                 show(i);
                 lb.classList.add('open');
-                lock();
-                enableZoomBlock();   // ✅ 추가
             };
 
             const close = () => {
                 lb.classList.remove('open');
                 lbImg.src = '';
-                unlock();
-                disableZoomBlock();  // ✅ 추가
             };
 
             btnClose.addEventListener('click', (e) => { e.stopPropagation(); close(); });
             btnPrev.addEventListener('click', (e) => { e.stopPropagation(); show(index - 1); });
             btnNext.addEventListener('click', (e) => { e.stopPropagation(); show(index + 1); });
-            lb.addEventListener('click', e => { if (e.target === lb) close(); });
 
+            // ✅ 오버레이 클릭으로 닫히지 않게(요청사항)
+            lb.addEventListener('click', (e) => {
+                // 아무 것도 안 함
+            });
+
+            // ✅ “핀치(멀티터치)만” 차단: 스크롤(한 손가락)은 그대로
+            const stopPinch = (e) => {
+                if (!lb.classList.contains('open')) return;
+                if (e.touches && e.touches.length > 1) {
+                    e.preventDefault();
+                }
+            };
+
+            // iOS 구형 gesture 이벤트도 차단 (스크롤에는 영향 거의 없음)
+            const stopGesture = (e) => {
+                if (!lb.classList.contains('open')) return;
+                e.preventDefault();
+            };
+
+            // 캡처 + passive:false 가 핵심
+            lb.addEventListener('touchstart', stopPinch, { passive: false, capture: true });
+            lb.addEventListener('touchmove', stopPinch, { passive: false, capture: true });
+            lb.addEventListener('gesturestart', stopGesture, { passive: false, capture: true });
+            lb.addEventListener('gesturechange', stopGesture, { passive: false, capture: true });
+            lb.addEventListener('gestureend', stopGesture, { passive: false, capture: true });
+
+            // 스와이프
             let sx = 0;
-            lbImg.addEventListener('touchstart', e => sx = e.touches[0].clientX, { passive: true });
+            lbImg.addEventListener('touchstart', e => { sx = e.touches[0].clientX; }, { passive: true });
             lbImg.addEventListener('touchend', e => {
                 const dx = e.changedTouches[0].clientX - sx;
                 if (Math.abs(dx) > 40) dx > 0 ? show(index - 1) : show(index + 1);
             }, { passive: true });
-
-            document.addEventListener('keydown', (e) => {
-                if (!lb.classList.contains('open')) return;
-                if (e.key === 'Escape') close();
-                if (e.key === 'ArrowLeft') show(index - 1);
-                if (e.key === 'ArrowRight') show(index + 1);
-            });
 
             const probe = (n) => new Promise(res => {
                 let i = 0;
