@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta id="viewport" name="viewport" content="width=device-width, initial-scale=1" />
     <title>우리 결혼합니다 | 모바일 청첩장</title>
     <meta name="format-detection" content="telephone=no">
     <!-- Fonts & Icons -->
@@ -927,7 +927,22 @@
                 lbImg.src = items[index];
                 lbCounter.textContent = `${index + 1} / ${items.length}`;
             };
+            // ✅ iOS Safari 브라우저 줌(핀치) 자체를 라이트박스 동안만 차단
+            const viewportMeta = document.querySelector('meta[name="viewport"]');
+            const viewportOriginal = viewportMeta ? viewportMeta.getAttribute('content') : null;
 
+            const disableViewportZoom = () => {
+                if (!viewportMeta) return;
+                viewportMeta.setAttribute(
+                    'content',
+                    'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no'
+                );
+            };
+
+            const restoreViewportZoom = () => {
+                if (!viewportMeta || !viewportOriginal) return;
+                viewportMeta.setAttribute('content', viewportOriginal);
+            };
 
             // ✅ 라이트박스 열릴 때만 "문서 전체" 핀치 줌 차단
             const preventZoom = (e) => {
@@ -954,15 +969,23 @@
                 show(i);
                 lb.classList.add('open');
                 lock();
-                enableZoomBlock(); // ✅ 추가
+                disableViewportZoom(); // ✅ 추가
             };
 
             const close = () => {
                 lb.classList.remove('open');
                 lbImg.src = '';
                 unlock();
-                disableZoomBlock(); // ✅ 추가
+                restoreViewportZoom(); // ✅ 추가
             };
+
+            let lastTap = 0;
+            lb.addEventListener('touchend', (e) => {
+                if (!lb.classList.contains('open')) return;
+                const now = Date.now();
+                if (now - lastTap < 300) e.preventDefault(); // 더블탭 확대 방지
+                lastTap = now;
+            }, { passive: false });
 
             btnClose.addEventListener('click', (e) => { e.stopPropagation(); close(); });
             btnPrev.addEventListener('click', (e) => { e.stopPropagation(); show(index - 1); });
