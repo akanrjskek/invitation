@@ -14,7 +14,9 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&display=swap"
         rel="stylesheet">
-
+    <link rel="preload" as="style"
+        href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
     <!-- Naver Map -->
     <script type="text/javascript" src="https://oapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=xobgoisfw3"></script>
 
@@ -552,6 +554,21 @@
             color: rgba(229, 231, 235, .85);
         }
 
+        html,
+        body {
+            -webkit-text-size-adjust: 100%;
+            /* iOS 글자 자동 확대 방지 */
+            text-rendering: optimizeLegibility;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .hero,
+        .hero * {
+            font-kerning: normal;
+            -webkit-font-smoothing: antialiased;
+        }
+
         @media (max-width:520px) {
             .lb-prev {
                 left: 10px;
@@ -563,6 +580,18 @@
 
             .transport-box {
                 grid-template-columns: 1fr;
+            }
+
+            .wedding-subtitle.en {
+                letter-spacing: .28em;
+            }
+
+            .wedding-subtitle.kr {
+                letter-spacing: .04em;
+            }
+
+            .wedding-subtitle.meta {
+                letter-spacing: .06em;
             }
         }
     </style>
@@ -847,7 +876,7 @@
                 dir: 'images/',
                 prefix: 'picture',
                 start: 1,
-                count: 7,
+                count: 8,
                 ext: ['jpeg', 'jpg', 'png', 'webp']
             };
 
