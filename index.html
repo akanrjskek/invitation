@@ -476,23 +476,22 @@
         }
 
         .lb-stage {
-            position: relative;
-            width: min(92vw, 820px);
-            height: min(82vh, 680px);
+            width: min(86vw, 720px);
+            /* ⬅ 가로 줄임 */
+            height: min(72vh, 520px);
+            /* ⬅ 세로 줄임 */
             display: flex;
             align-items: center;
             justify-content: center;
-            z-index: 10000;
-            pointer-events: none;
         }
 
         .lb-img {
-            touch-action: pan-x;
-            /* 좌우 스와이프에 집중 */
-            -webkit-user-select: none;
-            user-select: none;
-            -webkit-user-drag: none;
-            will-change: opacity, transform;
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+
+            /* ⭐ 추가 */
+            border-radius: 16px;
         }
 
         .lb-counter {
@@ -647,6 +646,11 @@
 
             .card .card {
                 background: rgba(28, 32, 48, .96);
+            }
+
+            .lb-stage {
+                width: 84vw;
+                height: 62vh;
             }
         }
 
