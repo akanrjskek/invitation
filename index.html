@@ -144,6 +144,17 @@
             z-index: 1;
         }
 
+        .greeting-text {
+            line-height: 1.85;
+            text-align: center;
+
+            /* ⭐ 핵심 */
+            white-space: pre-line;
+            /* br 기준 줄바꿈 유지 */
+            word-break: keep-all;
+            /* 한글 줄 중간 깨짐 방지 */
+        }
+
         .wedding-subtitle {
             font-family: "Playfair Display", serif;
             color: rgba(255, 255, 255, .92);
@@ -632,6 +643,47 @@
             background: rgba(28, 32, 48, 0.96);
         }
 
+        /* 예식 안내 박스 전체 */
+        .info-box {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        /* 각 안내 항목 */
+        .info-item {
+            padding: 16px 18px;
+            border-radius: 14px;
+            background: rgba(20, 28, 48, 0.88);
+            /* 🔥 흰색 방지 */
+            border: 1px solid rgba(255, 215, 150, .18);
+        }
+
+        /* 제목 */
+        .info-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 700;
+            font-size: 14px;
+            letter-spacing: .08em;
+            color: rgba(255, 215, 150, .95);
+            margin-bottom: 8px;
+        }
+
+        .info-title i {
+            font-size: 18px;
+        }
+
+        /* 내용 */
+        .info-desc {
+            margin: 0;
+            font-size: 14px;
+            line-height: 1.7;
+            color: rgba(255, 255, 255, .92);
+            word-break: keep-all;
+        }
+
         @media (max-width:520px) {
             .lb-prev {
                 left: 10px;
@@ -691,19 +743,31 @@
             </p>
         </section>
 
-        <!-- 예식 안내 -->
         <section class="card">
             <div class="section-title">예식 안내</div>
-            <div class="ceremony-grid">
-                <div class="card ceremony-item">
-                    <div class="muted">일시</div>
-                    <div style="font-size:14px;font-weight:800">2026년 3월 8일 일요일 오후 3시 30분</div>
+
+            <div class="info-box">
+                <!-- 일시 -->
+                <div class="info-item">
+                    <div class="info-title">
+                        <i class="ri-calendar-event-line"></i> 예식 일시
+                    </div>
+                    <p class="info-desc">
+                        2026년 3월 8일 일요일<br>
+                        오후 3시 30분
+                    </p>
                 </div>
-                <div class="card ceremony-item">
-                    <div class="muted">장소</div>
-                    <div style="font-size:14px;font-weight:800">명동 라루체 5F 그레이스홀</div>
-                    <div style="font-size:14px;font-weight:800">서울 중구 퇴계로 18길 46 (남산동1가 13-6)</div>
-                    <div style="font-size:14px;font-weight:800">TEL. 02-766-8200</div>
+
+                <!-- 장소 -->
+                <div class="info-item">
+                    <div class="info-title">
+                        <i class="ri-map-pin-line"></i> 예식 장소
+                    </div>
+                    <p class="info-desc">
+                        명동 라루체 5F 그레이스홀<br>
+                        서울 중구 퇴계로 18길 46 (남산동1가 13-6)<br>
+                        TEL. 02-766-8200
+                    </p>
                 </div>
             </div>
         </section>
