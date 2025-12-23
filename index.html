@@ -158,6 +158,23 @@
             /* 한글 중간 끊김 방지 */
         }
 
+        .greeting-text {
+            text-align: center;
+            line-height: 1.85;
+            margin: 0;
+        }
+
+        .greeting-text .g-line {
+            display: block;
+            white-space: nowrap;
+            /* ✅ 자동 줄바꿈 절대 금지 */
+            overflow: hidden;
+            /* 혹시라도 넘치면 숨김(JS가 줄여서 거의 안넘침) */
+            text-overflow: clip;
+            font-size: clamp(12px, 3.6vw, 16px);
+            /* ✅ 기본은 반응형 */
+        }
+
         .wedding-subtitle {
             font-family: "Playfair Display", serif;
             color: rgba(255, 255, 255, .92);
@@ -739,10 +756,10 @@
         <!-- 인사말 -->
         <section class="card" id="greeting">
             <div class="section-title">결혼합니다</div>
-            <p class="greeting-text">
-                열두 계절 속 쌓여온 작은 마음들이 하나의 사랑이 되어<br />
-                그대로의 우리로, 서로를 채우려 합니다.<br />
-                그 시작에 따뜻한 축볼을 더해 주세요.
+            <p class="greeting-text" id="greetingText">
+                <span class="g-line">열두 계절 속 쌓여온 작은 마음들이 하나의 사랑이 되어</span>
+                <span class="g-line">그대로의 우리로, 서로를 채우려 합니다.</span>
+                <span class="g-line">그 시작에 따뜻한 축복을 더해 주세요.</span>
             </p>
         </section>
 
