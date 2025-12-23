@@ -3,8 +3,17 @@
 
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport"
-        content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="format-detection" content="telephone=no, date=no, address=no, email=no">
+
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.3.0/fonts/remixicon.css">
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;500;600&family=Playfair+Display:wght@400;600;700&display=swap">
     <title>우리 결혼합니다 | 모바일 청첩장</title>
     <meta name="format-detection" content="telephone=no">
     <!-- Fonts & Icons -->
@@ -478,15 +487,12 @@
         }
 
         .lb-img {
-            max-width: 100%;
-            max-height: 100%;
-            border-radius: 18px;
-            object-fit: contain;
-            box-shadow: 0 30px 80px rgba(0, 0, 0, .6);
-            border: 1px solid rgba(255, 215, 150, .18);
+            touch-action: pan-x;
+            /* 좌우 스와이프에 집중 */
+            -webkit-user-select: none;
             user-select: none;
             -webkit-user-drag: none;
-            pointer-events: auto;
+            will-change: opacity, transform;
         }
 
         .lb-counter {
@@ -635,32 +641,25 @@
 
         /* ===== 카카오 인앱 브라우저 대응 ===== */
         @supports not ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
-
-            /* 바깥 카드 */
             .card {
-                background: rgba(20, 24, 38, 0.96);
-                /* 거의 불투명 */
-                backdrop-filter: none;
-                -webkit-backdrop-filter: none;
+                background: rgba(20, 24, 38, .96);
             }
 
-            /* 예식 안내 안쪽 카드 */
             .card .card {
-                background: rgba(28, 32, 48, 0.96);
-                backdrop-filter: none;
-                -webkit-backdrop-filter: none;
+                background: rgba(28, 32, 48, .96);
             }
         }
+
 
         /* ===== 카카오톡 인앱 브라우저 전용 ===== */
         .kakao .card {
-            background: rgba(20, 24, 38, 0.96);
-            backdrop-filter: none;
+            background: rgba(20, 24, 38, .96);
             -webkit-backdrop-filter: none;
+            backdrop-filter: none;
         }
 
         .kakao .card .card {
-            background: rgba(28, 32, 48, 0.96);
+            background: rgba(28, 32, 48, .96);
         }
 
         /* 예식 안내 박스 전체 */
@@ -1030,96 +1029,104 @@
 
         function initGalleryAuto() {
             const GALLERY = {
-                dir: 'images/',
+                thumbDir: 'images/gallery/thumb/',
+                viewDir: 'images/gallery/view/',
                 prefix: 'picture',
                 start: 0,
                 count: 4,
-                ext: ['jpeg', 'jpg', 'png', 'webp']
+                ext: ['jpeg', 'webp', 'jpg', 'png']
             };
 
             const grid = document.getElementById('gallery-grid');
             const lb = document.getElementById('lightbox');
             const lbImg = document.getElementById('lb-img');
             const lbCounter = document.getElementById('lb-counter');
-            const btnClose = lb.querySelector('.lb-close');
-            const btnPrev = lb.querySelector('.lb-prev');
-            const btnNext = lb.querySelector('.lb-next');
-
+            const btnClose = lb?.querySelector('.lb-close');
+            const btnPrev = lb?.querySelector('.lb-prev');
+            const btnNext = lb?.querySelector('.lb-next');
             if (!grid || !lb || !lbImg) return;
 
-            // ✅ 디코딩/프리로드 캐시
-            const cache = new Map(); // src -> Promise<HTMLImageElement>
+            // ✅ 캐시: src -> Promise<HTMLImageElement|null>
+            const cache = new Map();
 
-            const preload = (src) => {
+            const addPreloadTag = (src) => {
+                const id = 'pre_' + btoa(src).replace(/=/g, '');
+                if (document.getElementById(id)) return;
+                const link = document.createElement('link');
+                link.id = id;
+                link.rel = 'preload';
+                link.as = 'image';
+                link.href = src;
+                document.head.appendChild(link);
+            };
+
+            const preloadDecode = (src) => {
+                if (!src) return Promise.resolve(null);
                 if (cache.has(src)) return cache.get(src);
+
+                addPreloadTag(src);
+
                 const p = new Promise((resolve) => {
                     const img = new Image();
                     img.decoding = 'async';
                     img.loading = 'eager';
-                    img.src = src;
                     img.onload = async () => {
-                        // decode() 지원 브라우저면 미리 디코딩까지
                         try { if (img.decode) await img.decode(); } catch { }
                         resolve(img);
                     };
                     img.onerror = () => resolve(null);
+                    img.src = src;
                 });
+
                 cache.set(src, p);
                 return p;
             };
 
+            // 아이템: {thumb, view}
             let items = [];
             let index = 0;
 
-            // iOS 스크롤 잠금(너 코드 유지)
-            let scrollY = 0;
-            const lock = () => {
-                scrollY = window.scrollY;
-                document.body.style.position = 'fixed';
-                document.body.style.top = `-${scrollY}px`;
-                document.body.style.width = '100%';
-            };
-            const unlock = () => {
-                document.body.style.position = '';
-                document.body.style.top = '';
-                window.scrollTo(0, scrollY);
-            };
+            // ✅ 라이트박스 열릴 때만 스크롤 잠금 (스크롤 문제 방지)
+            const lock = () => document.documentElement.classList.add('lb-noscroll');
+            const unlock = () => document.documentElement.classList.remove('lb-noscroll');
 
-            const warmNeighbors = (i) => {
-                if (items.length < 2) return;
-                const prev = items[(i - 1 + items.length) % items.length];
-                const next = items[(i + 1) % items.length];
-                // ✅ 다음/이전 사진 미리 로딩 + 디코딩
-                preload(prev);
-                preload(next);
+            const neighbors = (i) => {
+                if (!items.length) return [];
+                const a = items[(i - 1 + items.length) % items.length]?.view;
+                const b = items[i]?.view;
+                const c = items[(i + 1) % items.length]?.view;
+                const d = items[(i + 2) % items.length]?.view;
+                return [a, b, c, d].filter(Boolean);
             };
 
             const show = async (i) => {
                 if (!items.length) return;
-
                 index = (i + items.length) % items.length;
-                const src = items[index];
-
-                // ✅ 로딩 중 깜빡임 줄이기
-                lbImg.style.opacity = '0.15';
-
-                const img = await preload(src);
-                if (img) {
-                    // ✅ 이미 디코딩된 캐시를 사용해 빠르게 표시
-                    lbImg.src = img.src;
-                    lbImg.style.opacity = '1';
-                } else {
-                    lbImg.src = src; // fallback
-                    lbImg.style.opacity = '1';
-                }
 
                 lbCounter.textContent = `${index + 1} / ${items.length}`;
-                warmNeighbors(index);
+
+                // 주변 미리 준비(동시)
+                neighbors(index).forEach(preloadDecode);
+
+                const src = items[index].view;
+
+                // ✅ decode 완료 후 교체 (체감 딜레이 최소)
+                lbImg.style.opacity = '0.01';
+                const decoded = await preloadDecode(src);
+                requestAnimationFrame(() => {
+                    lbImg.src = decoded ? decoded.src : src;
+                    lbImg.style.opacity = '1';
+                });
             };
 
-            const open = (i) => {
+            const open = async (i) => {
                 lb.classList.add('open');
                 lock();
+
+                // ✅ 열 때 현재+다음 먼저 decode 완료 후 표시
+                const cur = items[i]?.view;
+                const nxt = items[(i + 1) % items.length]?.view;
+                await Promise.all([preloadDecode(cur), preloadDecode(nxt)]);
                 show(i);
             };
 
@@ -1129,20 +1136,19 @@
                 unlock();
             };
 
-            // 버튼
-            btnClose.addEventListener('click', (e) => { e.stopPropagation(); close(); });
-            btnPrev.addEventListener('click', (e) => { e.stopPropagation(); show(index - 1); });
-            btnNext.addEventListener('click', (e) => { e.stopPropagation(); show(index + 1); });
+            btnClose?.addEventListener('click', (e) => { e.stopPropagation(); close(); });
+            btnPrev?.addEventListener('click', (e) => { e.stopPropagation(); show(index - 1); });
+            btnNext?.addEventListener('click', (e) => { e.stopPropagation(); show(index + 1); });
 
-            // (원하면) 오버레이 클릭 닫기 유지/해제는 여기서 조절
+            // 오버레이 클릭 닫기 원치 않으면 꺼둠(현재 요구사항)
             // lb.addEventListener('click', e => { if (e.target === lb) close(); });
 
             // 스와이프
             let sx = 0;
-            lbImg.addEventListener('touchstart', (e) => sx = e.touches[0].clientX, { passive: true });
+            lbImg.addEventListener('touchstart', (e) => { sx = e.touches[0].clientX; }, { passive: true });
             lbImg.addEventListener('touchend', (e) => {
                 const dx = e.changedTouches[0].clientX - sx;
-                if (Math.abs(dx) > 40) dx > 0 ? show(index - 1) : show(index + 1);
+                if (Math.abs(dx) > 35) dx > 0 ? show(index - 1) : show(index + 1);
             }, { passive: true });
 
             // 키보드
@@ -1153,13 +1159,13 @@
                 if (e.key === 'ArrowRight') show(index + 1);
             });
 
-            // 자동 이미지 탐색 (너 방식 유지)
-            const probe = (n) => new Promise(res => {
-                let i = 0;
+            // 확장자 probe
+            const probe = (dir, n) => new Promise(res => {
+                let k = 0;
                 const img = new Image();
                 const next = () => {
-                    if (i >= GALLERY.ext.length) return res(null);
-                    img.src = `${GALLERY.dir}${GALLERY.prefix}${n}.${GALLERY.ext[i++]}`;
+                    if (k >= GALLERY.ext.length) return res(null);
+                    img.src = `${dir}${GALLERY.prefix}${n}.${GALLERY.ext[k++]}`;
                 };
                 img.onload = () => res(img.src);
                 img.onerror = next;
@@ -1170,7 +1176,7 @@
                 const b = document.createElement('button');
                 b.className = 'g-item';
                 b.type = 'button';
-                b.innerHTML = `<img src="${src}" loading="lazy" decoding="async" alt="photo ${i + 1}">`;
+                b.innerHTML = `<img src="${src}" loading="eager" decoding="async" alt="photo ${i + 1}">`;
                 b.addEventListener('click', () => open(i));
                 return b;
             };
@@ -1178,17 +1184,17 @@
             (async () => {
                 const found = [];
                 for (let n = GALLERY.start; n < GALLERY.start + GALLERY.count; n++) {
-                    const src = await probe(n);
-                    if (src) found.push(src);
+                    const thumb = await probe(GALLERY.thumbDir, n);
+                    const view = await probe(GALLERY.viewDir, n);
+                    if (thumb && view) found.push({ thumb, view });
                 }
                 items = found;
 
                 grid.innerHTML = '';
-                items.forEach((src, i) => grid.appendChild(makeThumb(src, i)));
+                items.forEach((it, i) => grid.appendChild(makeThumb(it.thumb, i)));
 
-                // ✅ 첫 사진 + 다음 사진 정도는 미리 warm-up (초기 넘김 딜레이 감소)
-                if (items[0]) preload(items[0]);
-                if (items[1]) preload(items[1]);
+                // ✅ 초기 워밍업(처음 진입/첫 넘김 체감 개선)
+                await Promise.all(items.slice(0, 3).map(x => preloadDecode(x.view)));
             })();
         }
         if (/KAKAOTALK/i.test(navigator.userAgent)) {
