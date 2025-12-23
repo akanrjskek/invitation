@@ -145,14 +145,17 @@
         }
 
         .greeting-text {
-            line-height: 1.85;
             text-align: center;
+            line-height: 1.85;
 
             /* ⭐ 핵심 */
+            font-size: clamp(13px, 3.8vw, 15px);
+            /* 최소 13px / 보통 14~15px / 큰 화면 15px */
+
             white-space: pre-line;
-            /* br 기준 줄바꿈 유지 */
+            /* <br> 기준 줄 유지 */
             word-break: keep-all;
-            /* 한글 줄 중간 깨짐 방지 */
+            /* 한글 중간 끊김 방지 */
         }
 
         .wedding-subtitle {
