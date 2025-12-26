@@ -453,14 +453,11 @@
         }
 
         .g-item {
-            padding: 0;
-            border: 0;
-            background: transparent;
-            border-radius: 14px;
-            overflow: hidden;
-            cursor: pointer;
-            border: 1px solid rgba(255, 215, 150, .16);
-            box-shadow: 0 14px 26px rgba(0, 0, 0, .28);
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .g-item:focus {
+            outline: none;
         }
 
         .g-item img {
@@ -641,14 +638,6 @@
         .hero * {
             font-kerning: normal;
             -webkit-font-smoothing: antialiased;
-        }
-
-        /* 라이트박스 열렸을 때만 문서 스크롤/바운스 잠금 */
-        html.lb-noscroll,
-        body.lb-noscroll {
-            height: 100%;
-            overflow: hidden;
-            overscroll-behavior: none;
         }
 
         /* ===== 카카오 인앱 브라우저 대응 ===== */
@@ -1065,6 +1054,37 @@
             el.textContent = text;
         }
         function initGalleryAuto() {
+            const wait = (ms) => new Promise(r => setTimeout(r, ms));
+
+            // ✅ 클릭한 썸네일이 화면 중앙에 오도록 페이지 스크롤
+            const scrollThumbToCenter = async (thumbBtnEl) => {
+                if (!thumbBtnEl) return;
+
+                // 버튼 포커스로 인한 스크롤 점프 방지
+                if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
+
+                const rect = thumbBtnEl.getBoundingClientRect();
+                const currentY = window.scrollY || window.pageYOffset || 0;
+
+                // 썸네일 중심이 viewport 중앙에 오게 하는 목표 Y
+                const targetY = currentY + rect.top + (rect.height / 2) - (window.innerHeight / 2);
+                const y = Math.max(0, Math.round(targetY));
+
+                // 이미 거의 중앙이면 스킵 (불필요한 흔들림 방지)
+                if (Math.abs((window.scrollY || 0) - y) < 6) return;
+
+                // iOS/카톡에서도 최대한 동작하게: 우선 smooth 시도 후, 짧게 대기
+                try {
+                    window.scrollTo({ top: y, behavior: 'smooth' });
+                    await wait(220);
+                } catch {
+                    window.scrollTo(0, y);
+                }
+
+                // 스무스가 무시되는 환경 대비: 최종 위치 보정
+                window.scrollTo(0, y);
+                await wait(30);
+            };
             const GALLERY = {
                 thumbDir: 'images/gallery/thumb/',
                 viewDir: 'images/gallery/view/',
@@ -1123,9 +1143,32 @@
             let items = [];
             let index = 0;
 
-            // ✅ 라이트박스 열릴 때만 스크롤 잠금 (스크롤 문제 방지)
-            const lock = () => document.documentElement.classList.add('lb-noscroll');
-            const unlock = () => document.documentElement.classList.remove('lb-noscroll');
+            let scrollY = 0;
+
+            const lockScroll = () => {
+                scrollY = window.scrollY || window.pageYOffset || 0;
+
+                // 포커스가 스크롤을 튀게 만드는 경우 방지
+                if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
+
+                document.body.style.position = "fixed";
+                document.body.style.top = `-${scrollY}px`;
+                document.body.style.left = "0";
+                document.body.style.right = "0";
+                document.body.style.width = "100%";
+                document.body.style.overflow = "hidden";  // ✅ 여기서만 잠금
+            };
+
+            const unlockScroll = () => {
+                document.body.style.position = "";
+                document.body.style.top = "";
+                document.body.style.left = "";
+                document.body.style.right = "";
+                document.body.style.width = "";
+                document.body.style.overflow = "";
+
+                window.scrollTo(0, scrollY);
+            };
 
             const neighbors = (i) => {
                 if (!items.length) return [];
@@ -1155,51 +1198,27 @@
                     lbImg.style.opacity = '1';
                 });
             };
-            // ✅ 썸네일을 화면 중앙으로 스크롤
-            const scrollThumbToCenter = (el) => new Promise((resolve) => {
-                if (!el) return resolve();
-
-                // iOS/카톡에서 scrollIntoView가 가끔 튀는 경우 대비
-                const rect = el.getBoundingClientRect();
-                const targetY = rect.top + window.scrollY - (window.innerHeight / 2) + (rect.height / 2);
-
-                window.scrollTo({ top: Math.max(0, targetY), behavior: 'smooth' });
-
-                // 스무스 스크롤 완료까지 약간 대기(체감 중요)
-                setTimeout(resolve, 240);
-            });
 
             // ✅ 특정 인덱스의 썸네일 DOM 찾기
             const getThumbEl = (i) => grid.querySelectorAll('.g-item')[i] || null;
 
             const open = async (i) => {
-                // ✅ 1) 라이트박스 열기 전에 썸네일을 화면 중앙으로 먼저 이동
-                const thumbEl = getThumbEl(i);
-                await scrollThumbToCenter(thumbEl);
-
-                // ✅ 2) 그 다음 라이트박스 오픈
+                lockScroll();                 // ✅ 먼저 현재(=중앙으로 맞춘) 위치를 고정
                 lb.classList.add('open');
-                lock();
-
-                // ✅ 열 때 현재+다음 먼저 decode 완료 후 표시
-                const cur = items[i]?.view;
-                const nxt = items[(i + 1) % items.length]?.view;
-                await Promise.all([preloadDecode(cur), preloadDecode(nxt)]);
-                show(i);
+                await show(i);
             };
 
             const close = () => {
                 lb.classList.remove('open');
                 lbImg.src = '';
-                unlock();
+                unlockScroll();
             };
 
             btnClose?.addEventListener('click', (e) => { e.stopPropagation(); close(); });
             btnPrev?.addEventListener('click', (e) => { e.stopPropagation(); show(index - 1); });
             btnNext?.addEventListener('click', (e) => { e.stopPropagation(); show(index + 1); });
 
-            // 오버레이 클릭 닫기 원치 않으면 꺼둠(현재 요구사항)
-            // lb.addEventListener('click', e => { if (e.target === lb) close(); });
+            lb.addEventListener('touchmove', (e) => e.preventDefault(), { passive: false });
 
             // 스와이프
             let sx = 0;
@@ -1235,7 +1254,16 @@
                 b.className = 'g-item';
                 b.type = 'button';
                 b.innerHTML = `<img src="${src}" loading="eager" decoding="async" alt="photo ${i + 1}">`;
-                b.addEventListener('click', () => open(i));
+                b.addEventListener('click', async (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+
+                    // ✅ 1) 먼저 클릭한 썸네일을 화면 중앙으로 이동
+                    await scrollThumbToCenter(e.currentTarget);
+
+                    // ✅ 2) 그 다음에 라이트박스 열면서 스크롤 락
+                    open(i);
+                });
                 return b;
             };
 
