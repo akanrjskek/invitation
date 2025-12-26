@@ -54,6 +54,22 @@
             color: #e5e7eb;
         }
 
+        .dday {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 14px;
+            padding: 8px 12px;
+            border-radius: 999px;
+            font-weight: 800;
+            font-size: 13px;
+            letter-spacing: .08em;
+            color: #111827;
+            background: rgba(255, 255, 255, .88);
+            border: 1px solid rgba(255, 255, 255, .65);
+            box-shadow: 0 12px 26px rgba(0, 0, 0, .28);
+        }
+
         .wrap {
             max-width: 680px;
             margin: 0 auto;
@@ -747,6 +763,7 @@
 
         <!-- 히어로 -->
         <div class="hero card">
+            <div class="dday" id="dday"></div>
             <div class="wedding-subtitle en">WE ARE GETTING MARRIED</div>
             <div class="wedding-subtitle kr">영훈 · 누리</div>
             <div class="wedding-subtitle meta">2026년 3월 8일 일요일 오후 3:30</div>
@@ -1027,7 +1044,26 @@
                 });
             });
         }
+        function setDDay() {
+            const el = document.getElementById('dday');
+            if (!el) return;
 
+            // ✅ 결혼식 날짜 (KST 기준으로 "하루" 계산 정확히)
+            const target = new Date(2026, 2, 8); // 2026-03-08 (월은 0부터라 2=3월)
+
+            // 오늘도 KST 자정 기준으로 계산(오차 방지)
+            const now = new Date();
+            const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+            const diffDays = Math.ceil((target - today) / (1000 * 60 * 60 * 24));
+
+            let text = '';
+            if (diffDays > 0) text = `D-${diffDays}`;
+            else if (diffDays === 0) text = 'D-DAY';
+            else text = `D+${Math.abs(diffDays)}`;
+
+            el.textContent = text;
+        }
         function initGalleryAuto() {
             const GALLERY = {
                 thumbDir: 'images/gallery/thumb/',
@@ -1119,8 +1155,29 @@
                     lbImg.style.opacity = '1';
                 });
             };
+            // ✅ 썸네일을 화면 중앙으로 스크롤
+            const scrollThumbToCenter = (el) => new Promise((resolve) => {
+                if (!el) return resolve();
+
+                // iOS/카톡에서 scrollIntoView가 가끔 튀는 경우 대비
+                const rect = el.getBoundingClientRect();
+                const targetY = rect.top + window.scrollY - (window.innerHeight / 2) + (rect.height / 2);
+
+                window.scrollTo({ top: Math.max(0, targetY), behavior: 'smooth' });
+
+                // 스무스 스크롤 완료까지 약간 대기(체감 중요)
+                setTimeout(resolve, 240);
+            });
+
+            // ✅ 특정 인덱스의 썸네일 DOM 찾기
+            const getThumbEl = (i) => grid.querySelectorAll('.g-item')[i] || null;
 
             const open = async (i) => {
+                // ✅ 1) 라이트박스 열기 전에 썸네일을 화면 중앙으로 먼저 이동
+                const thumbEl = getThumbEl(i);
+                await scrollThumbToCenter(thumbEl);
+
+                // ✅ 2) 그 다음 라이트박스 오픈
                 lb.classList.add('open');
                 lock();
 
@@ -1202,6 +1259,7 @@
             document.documentElement.classList.add('kakao');
         }
         document.addEventListener('DOMContentLoaded', () => {
+            setDDay();
             initMap();
             initCopyButtons();
             initCongratsContacts2Col();
