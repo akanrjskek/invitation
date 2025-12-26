@@ -476,22 +476,19 @@
         }
 
         .lb-stage {
-            width: min(86vw, 720px);
-            /* ⬅ 가로 줄임 */
-            height: min(72vh, 520px);
-            /* ⬅ 세로 줄임 */
             display: flex;
             align-items: center;
             justify-content: center;
+            width: min(86vw, 720px);
+            height: min(72vh, 520px);
         }
 
         .lb-img {
             max-width: 100%;
             max-height: 100%;
             object-fit: contain;
-
-            /* ⭐ 추가 */
-            border-radius: 16px;
+            display: block;
+            margin: auto;
         }
 
         .lb-counter {
