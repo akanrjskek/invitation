@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
     <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.3.0/fonts/remixicon.css">
     <link rel="stylesheet"
@@ -140,6 +140,11 @@
             background-repeat: no-repeat;
             border: 1px solid rgba(255, 215, 150, .26);
             box-shadow: 0 24px 60px rgba(0, 0, 0, .45), inset 0 1px 0 rgba(255, 255, 255, .10);
+        }
+
+        .hero-text {
+            transform: translateY(-36px);
+            /* 🔼 위로 이동 (값 조절) */
         }
 
         .hero::before {
@@ -432,14 +437,6 @@
             height: 100%;
         }
 
-        /* ===== 갤러리 그리드 ===== */
-        .gallery-grid {
-            margin-top: 12px;
-            display: grid;
-            grid-template-columns: repeat(3, minmax(0, 1fr));
-            gap: 10px;
-        }
-
         @media (min-width:560px) {
             .gallery-grid {
                 grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -452,66 +449,32 @@
             }
         }
 
-        .g-item {
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        .g-item:focus {
-            outline: none;
-        }
-
-        .g-item img {
+        /* ===== 스와이프 갤러리(Swiper) ===== */
+        .gallery-swiper {
+            margin-top: 12px;
             width: 100%;
-            height: 160px;
-            display: block;
-            object-fit: cover;
-            transition: transform .18s ease;
         }
 
-        .g-item:active img {
-            transform: scale(.98);
-        }
-
-        .lightbox {
-            position: fixed;
-            inset: 0;
-            display: none;
-            align-items: center;
-            justify-content: center;
-
-            /* ✅ safe-area + 정확한 중앙을 위해 padding을 위/아래도 반영 */
-            padding:
-                calc(env(safe-area-inset-top, 0px) + 18px) calc(env(safe-area-inset-right, 0px) + 18px) calc(env(safe-area-inset-bottom, 0px) + 18px) calc(env(safe-area-inset-left, 0px) + 18px);
-
-            background: rgba(0, 0, 0, .78);
-            z-index: 9999;
-
-            /* ✅ iOS/인앱에서 스크롤 튐 방지 */
-            overscroll-behavior: none;
-            touch-action: none;
-        }
-
-        .lightbox.open {
-            display: flex;
-        }
-
-        .lb-stage {
+        /* 한 장이 “항상 같은 박스 높이”로 보이게 */
+        .gallery-swiper .swiper-slide {
             position: relative;
-            width: min(86vw, 720px);
             height: min(72vh, 520px);
+            border-radius: 16px;
+            overflow: hidden;
             display: flex;
             align-items: center;
             justify-content: center;
-            overflow: hidden;
-            border-radius: 16px;
+            background: rgba(255, 255, 255, .04);
+            border: 1px solid rgba(255, 215, 150, .18);
+            box-shadow: 0 18px 40px rgba(0, 0, 0, .32);
         }
 
-        /* ✅ 배경(블러) */
-        .lb-stage::before {
+        /* 블러 배경(사진 비율이 달라도 “통일감” 유지) */
+        .gallery-swiper .swiper-slide::before {
             content: "";
             position: absolute;
             inset: 0;
-            background-image: var(--lb-bg);
+            background-image: var(--bg);
             background-size: cover;
             background-position: center;
             filter: blur(18px);
@@ -519,72 +482,20 @@
             opacity: .35;
         }
 
-        /* ✅ 실제 사진(원본 유지) */
-        .lb-img {
+        /* 실제 사진은 원본 비율 유지 + 완전 중앙 */
+        .gallery-swiper img {
             position: relative;
             width: 100%;
             height: 100%;
             object-fit: contain;
-            /* ✅ 원본 유지 */
             display: block;
         }
 
-        .lb-counter {
-            position: absolute;
-            left: 12px;
-            bottom: 12px;
-            padding: 6px 10px;
-            border-radius: 999px;
-            background: rgba(255, 255, 255, .10);
-            border: 1px solid rgba(255, 215, 150, .18);
-            color: rgba(255, 255, 255, .92);
-            font-size: 12px;
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            pointer-events: auto;
-        }
-
-        .lb-btn {
-            position: fixed;
-            border: 0;
-            width: 46px;
-            height: 46px;
-            border-radius: 999px;
-            background: rgba(255, 255, 255, .10);
-            color: rgba(255, 255, 255, .95);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 215, 150, .18);
-            box-shadow: 0 18px 40px rgba(0, 0, 0, .35);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 10001;
-            pointer-events: auto;
-            cursor: pointer;
-        }
-
-        .lb-btn:active {
-            transform: scale(.96);
-        }
-
-        .lb-close {
-            top: calc(env(safe-area-inset-top, 0px) + 12px);
-            right: calc(env(safe-area-inset-right, 0px) + 12px);
-            z-index: 10002;
-            /* ✅ 무조건 위 */
-        }
-
-        .lb-prev {
-            left: 14px;
-            top: 50%;
-            transform: translateY(-50%);
-        }
-
-        .lb-next {
-            right: 14px;
-            top: 50%;
-            transform: translateY(-50%);
+        /* 데스크탑에선 2장 보이게(원하면 1장으로 바꿔도 됨) */
+        @media (min-width: 560px) {
+            .gallery-swiper .swiper-slide {
+                height: 520px;
+            }
         }
 
         /* 예식 안내 그리드 */
@@ -779,11 +690,13 @@
 
         <!-- 히어로 -->
         <div class="hero card">
-            <div class="dday" id="dday"></div>
-            <div class="wedding-subtitle en">WE ARE GETTING MARRIED</div>
-            <div class="wedding-subtitle kr">영훈 · 누리</div>
-            <div class="wedding-subtitle meta">2026년 3월 8일 일요일 오후 3:30</div>
-            <div class="wedding-subtitle meta">명동 라루체, 5층 그레이스홀</div>
+            <div class="hero-text">
+                <div class="dday" id="dday"></div>
+                <div class="wedding-subtitle en">WE ARE GETTING MARRIED</div>
+                <div class="wedding-subtitle kr">영훈 · 누리</div>
+                <div class="wedding-subtitle meta">2026년 3월 8일 일요일 오후 3:30</div>
+                <div class="wedding-subtitle meta">명동 라루체, 5층 그레이스홀</div>
+            </div>
         </div>
 
         <!-- 인사말 -->
@@ -899,18 +812,10 @@
         <!-- 갤러리 -->
         <section class="card" id="gallery">
             <div class="section-title">우리 사진</div>
-            <div class="gallery-grid" id="gallery-grid"></div>
 
-            <!-- 라이트박스 -->
-            <div class="lightbox" id="lightbox" aria-hidden="true">
-                <button class="lb-btn lb-close" type="button"><i class="ri-close-line"></i></button>
-                <button class="lb-btn lb-prev" type="button"><i class="ri-arrow-left-s-line"></i></button>
-                <button class="lb-btn lb-next" type="button"><i class="ri-arrow-right-s-line"></i></button>
-
-                <div class="lb-stage">
-                    <img class="lb-img" id="lb-img" alt="">
-                    <div class="lb-counter" id="lb-counter"></div>
-                </div>
+            <div class="swiper gallery-swiper" id="gallery-swiper">
+                <div class="swiper-wrapper" id="gallery-wrapper"></div>
+                <div class="swiper-pagination"></div>
             </div>
         </section>
 
@@ -1080,40 +985,8 @@
 
             el.textContent = text;
         }
-        function initGalleryAuto() {
-            const raf = () => new Promise(r => requestAnimationFrame(r));
-
-            /** ✅ 클릭한 썸네일을 "항상 같은 중앙"으로 확정(스무스 X) */
-            const scrollThumbToExactCenter = async (thumbBtnEl) => {
-                if (!thumbBtnEl) return;
-
-                // 포커스 때문에 튀는 것 방지
-                if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
-
-                // iOS 주소창 등으로 innerHeight가 바뀌는 타이밍이 있어 2프레임 안정화
-                await raf(); await raf();
-
-                const rect = thumbBtnEl.getBoundingClientRect();
-                const currentY = window.pageYOffset || document.documentElement.scrollTop || 0;
-
-                // ✅ 썸네일 "중심"이 뷰포트 "중심"에 오도록
-                const targetY = currentY + rect.top + (rect.height / 2) - (window.innerHeight / 2);
-                const y = Math.max(0, Math.round(targetY));
-
-                // ✅ 스무스 금지: 항상 같은 위치(흔들림 제거)
-                window.scrollTo(0, y);
-
-                // 한 프레임 뒤 rect가 확정되면 1회 보정(로드/레이아웃 변동 대비)
-                await raf();
-                const rect2 = thumbBtnEl.getBoundingClientRect();
-                const currentY2 = window.pageYOffset || document.documentElement.scrollTop || 0;
-                const targetY2 = currentY2 + rect2.top + (rect2.height / 2) - (window.innerHeight / 2);
-                const y2 = Math.max(0, Math.round(targetY2));
-
-                if (Math.abs(y2 - y) > 2) window.scrollTo(0, y2);
-            };
+        function initGallerySwiper() {
             const GALLERY = {
-                thumbDir: 'images/gallery/thumb/',
                 viewDir: 'images/gallery/view/',
                 prefix: 'picture',
                 start: 0,
@@ -1121,154 +994,10 @@
                 ext: ['jpeg', 'webp', 'jpg', 'png']
             };
 
-            const grid = document.getElementById('gallery-grid');
-            const lb = document.getElementById('lightbox');
-            const lbImg = document.getElementById('lb-img');
-            const lbCounter = document.getElementById('lb-counter');
-            const btnClose = lb?.querySelector('.lb-close');
-            const btnPrev = lb?.querySelector('.lb-prev');
-            const btnNext = lb?.querySelector('.lb-next');
-            if (!grid || !lb || !lbImg) return;
+            const wrap = document.getElementById('gallery-wrapper');
+            const swiperEl = document.getElementById('gallery-swiper');
+            if (!wrap || !swiperEl) return;
 
-            // ✅ 캐시: src -> Promise<HTMLImageElement|null>
-            const cache = new Map();
-
-            const addPreloadTag = (src) => {
-                const id = 'pre_' + btoa(src).replace(/=/g, '');
-                if (document.getElementById(id)) return;
-                const link = document.createElement('link');
-                link.id = id;
-                link.rel = 'preload';
-                link.as = 'image';
-                link.href = src;
-                document.head.appendChild(link);
-            };
-
-            const preloadDecode = (src) => {
-                if (!src) return Promise.resolve(null);
-                if (cache.has(src)) return cache.get(src);
-
-                addPreloadTag(src);
-
-                const p = new Promise((resolve) => {
-                    const img = new Image();
-                    img.decoding = 'async';
-                    img.loading = 'eager';
-                    img.onload = async () => {
-                        try { if (img.decode) await img.decode(); } catch { }
-                        resolve(img);
-                    };
-                    img.onerror = () => resolve(null);
-                    img.src = src;
-                });
-
-                cache.set(src, p);
-                return p;
-            };
-
-            // 아이템: {thumb, view}
-            let items = [];
-            let index = 0;
-
-            let scrollY = 0;
-
-            const lockScroll = () => {
-                scrollY = window.scrollY || window.pageYOffset || 0;
-
-                // 포커스가 스크롤을 튀게 만드는 경우 방지
-                if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
-
-                document.body.style.position = "fixed";
-                document.body.style.top = `-${scrollY}px`;
-                document.body.style.left = "0";
-                document.body.style.right = "0";
-                document.body.style.width = "100%";
-                document.body.style.overflow = "hidden";  // ✅ 여기서만 잠금
-            };
-
-            const unlockScroll = () => {
-                document.body.style.position = "";
-                document.body.style.top = "";
-                document.body.style.left = "";
-                document.body.style.right = "";
-                document.body.style.width = "";
-                document.body.style.overflow = "";
-
-                window.scrollTo(0, scrollY);
-            };
-
-            const neighbors = (i) => {
-                if (!items.length) return [];
-                const a = items[(i - 1 + items.length) % items.length]?.view;
-                const b = items[i]?.view;
-                const c = items[(i + 1) % items.length]?.view;
-                const d = items[(i + 2) % items.length]?.view;
-                return [a, b, c, d].filter(Boolean);
-            };
-
-            const show = async (i) => {
-                if (!items.length) return;
-                index = (i + items.length) % items.length;
-
-                lbCounter.textContent = `${index + 1} / ${items.length}`;
-
-                // 주변 미리 준비(동시)
-                neighbors(index).forEach(preloadDecode);
-
-                const src = items[index].view;
-                lb.querySelector('.lb-stage').style.setProperty('--lb-bg', `url("${src}")`);
-
-                // ✅ decode 완료 후 교체 (체감 딜레이 최소)
-                lbImg.style.opacity = '0.01';
-                const decoded = await preloadDecode(src);
-                requestAnimationFrame(() => {
-                    lbImg.src = decoded ? decoded.src : src;
-                    lbImg.style.opacity = '1';
-                });
-            };
-
-            // ✅ 특정 인덱스의 썸네일 DOM 찾기
-            const getThumbEl = (i) => grid.querySelectorAll('.g-item')[i] || null;
-
-            const open = async (i) => {
-                // ✅ 여기서는 스크롤 락 걸지 말고, show 먼저 준비
-                lb.classList.add('open');
-                await show(i);
-
-                // ✅ 라이트박스가 열린 다음 프레임에 락(현재 위치를 정확히 저장)
-                await raf();
-                lockScroll();
-            };
-
-            const close = () => {
-                lb.classList.remove('open');
-                lbImg.src = '';
-                unlockScroll();
-            };
-
-            btnClose?.addEventListener('click', (e) => { e.stopPropagation(); close(); });
-            btnPrev?.addEventListener('click', (e) => { e.stopPropagation(); show(index - 1); });
-            btnNext?.addEventListener('click', (e) => { e.stopPropagation(); show(index + 1); });
-
-            lb.addEventListener('touchmove', (e) => e.preventDefault(), { passive: false });
-
-            // 스와이프
-            let sx = 0;
-            lbImg.addEventListener('touchstart', (e) => { sx = e.touches[0].clientX; }, { passive: true });
-            lbImg.addEventListener('touchend', (e) => {
-                const dx = e.changedTouches[0].clientX - sx;
-                if (Math.abs(dx) > 35) dx > 0 ? show(index - 1) : show(index + 1);
-            }, { passive: true });
-
-            // 키보드
-            document.addEventListener('keydown', (e) => {
-                if (!lb.classList.contains('open')) return;
-                if (e.key === 'Escape') close();
-                if (e.key === 'ArrowLeft') show(index - 1);
-                if (e.key === 'ArrowRight') show(index + 1);
-            });
-
-            // 확장자 probe
             const probe = (dir, n) => new Promise(res => {
                 let k = 0;
                 const img = new Image();
@@ -1281,39 +1010,33 @@
                 next();
             });
 
-            const makeThumb = (src, i) => {
-                const b = document.createElement('button');
-                b.className = 'g-item';
-                b.type = 'button';
-                b.innerHTML = `<img src="${src}" loading="eager" decoding="async" alt="photo ${i + 1}">`;
-                b.addEventListener('click', async (e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    e.currentTarget.blur();
-
-                    // ✅ 1) 썸네일을 정확히 중앙으로 "확정"
-                    await scrollThumbToExactCenter(e.currentTarget);
-
-                    // ✅ 2) 다음에 라이트박스 오픈 (오픈 중 추가 스크롤 없음)
-                    await open(i);
-                });
-                return b;
-            };
-
             (async () => {
-                const found = [];
+                const sources = [];
                 for (let n = GALLERY.start; n < GALLERY.start + GALLERY.count; n++) {
-                    const thumb = await probe(GALLERY.thumbDir, n);
-                    const view = await probe(GALLERY.viewDir, n);
-                    if (thumb && view) found.push({ thumb, view });
+                    const src = await probe(GALLERY.viewDir, n);
+                    if (src) sources.push(src);
                 }
-                items = found;
 
-                grid.innerHTML = '';
-                items.forEach((it, i) => grid.appendChild(makeThumb(it.thumb, i)));
+                wrap.innerHTML = sources.map((src, i) => `
+      <div class="swiper-slide" style="--bg:url('${src}')">
+        <img src="${src}" alt="photo ${i + 1}" loading="lazy" decoding="async">
+      </div>
+    `).join('');
 
-                // ✅ 초기 워밍업(처음 진입/첫 넘김 체감 개선)
-                await Promise.all(items.slice(0, 3).map(x => preloadDecode(x.view)));
+                // Swiper 생성
+                new Swiper('#gallery-swiper', {
+                    loop: true,
+                    centeredSlides: true,
+                    spaceBetween: 12,
+                    slidesPerView: 1,
+                    pagination: {
+                        el: '#gallery-swiper .swiper-pagination',
+                        clickable: true
+                    },
+                    breakpoints: {
+                        560: { slidesPerView: 2 }
+                    }
+                });
             })();
         }
         if (/KAKAOTALK/i.test(navigator.userAgent)) {
@@ -1324,9 +1047,10 @@
             initMap();
             initCopyButtons();
             initCongratsContacts2Col();
-            initGalleryAuto();
+            initGallerySwiper();   // ✅ 여기로 변경
         });
     </script>
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 </body>
 
 </html>
